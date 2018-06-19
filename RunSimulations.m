@@ -25,4 +25,3 @@ RadarMDPSim('Random', {}, 'Cross-Range', 60, ...
 % 
 % RadarMDPSim('Random', {}, 'Down-Range', 10000, 1, 'EvalOnNew', {{[-5, 5.5, 0.2],[0.0025, -0.002]}}, 'DoNotExport', 'Separate', 5, 1, 'INTER', [1 0 0 0 0], 0.1);
 % 
-

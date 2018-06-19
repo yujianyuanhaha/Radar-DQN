@@ -21,6 +21,9 @@ switch InterferenceBehavior
         Action = varargin{2};
         InterferenceState = varargin{3};
         
+        % J -  NewInt = UpdateInterference(InterferenceBehavior, ...
+        % OriginalIntf(:,:,1), CurrentAction, IntfStatesSingle);
+        
         % Determine how the interference will avoid the radar
         % TODO: Add more comments here after analyzing code
         % TODO: Change the default location the interferer uses when all
@@ -49,6 +52,7 @@ switch InterferenceBehavior
         
         % Set output arguments
         varargout{1} = CurrentInt;
+        % J - return CurrentInt <- InterferenceState <- Action
         
     % Intermittent interferer % [CurrentInt] = UpdateInterference(InterferenceBehavior, OldInt, IntProb)
     case 'INTER'
