@@ -1,7 +1,7 @@
 function RadarMDPSim(   SimMethod,       TrajFormat, TargetTravelMode,  NumRuns, ...
                         NumEvaluations,  EvalMethod, EvalTraj,          EnableExport, ...
                         IncludeTrajPlot, NumBands,   NumStatesInMemory, InterferenceBehavior, ...
-                        solver, varargin)
+                        varargin)
 % Potentially add number of bands, as a parameter so that is adjustable
 % Potentially add InitialState as a parameter to TRIANGLE, SAWTOOTH, and BURSTY
 % Potentially add NumRepeats as a parameter to PATTERN and PSEUDO
@@ -345,7 +345,6 @@ for kk = 1:(NumTrainingRuns)
         OldStateNumber         = StateNumber;
         [State, StateNumber]   = MapState(position, TargetPositions, velocity, ...
                                         TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
-        % State = [position_number, velocity_number, interference_number, sinr_number]
         StateHist(StateNumber) = StateHist(StateNumber) + 1;
 
         % Increment the position and training histogram
@@ -405,7 +404,7 @@ P_sparse_test = cell(1, NumActions);
 R_sparse_test = cell(1, NumActions);
 for k = 1:NumActions
     P_sparse_rowsums = sum(P_hist_sparse{k}, 2);
-    P_sparse_test{k} = bsxfun(@times, P_hist_sparse{k}, spfun(@(x) 1./x, P_sparse_rowsums));
+    P_sparse_test{k} = bsxfun(@times, P_hist_sparse{k}, spfun(@(x) 1./x, P_hist_sparse));
     % ##################### P_sparse_test <- P_hist_sparse
     R_sparse_test{k} = bsxfun(@times, R_sparse_unnormalized{k}, spfun(@(x) 1./x, RewardCount_sparse{k}));
 end
@@ -564,46 +563,12 @@ for evalIndx = 1:NumEvaluations
         [State, StateNumber] = MapState(position, TargetPositions, velocity, TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
 
         % Pick the current action and current action number according to the policy and record the amount of bandwidth
-        if solver == "mdp"
-            CurrentActionNumber    = policy(StateNumber);
-        else
-            % DQN solver construction
-            % implement on ONLINE TRAIN only
-            V1 = py.PyClass2.VehicleClass('Red');
-            py.print(V1);
-            
-%             modpath = '/anaconda2/lib/python2.7/site-packages';
-%             P = py.sys.path;
-%             if count(P,modpath) == 0
-%                 insert(P,int32(0),modpath);
-%                 % pop(P,int32(0))
-%             end
-            
-            dqn_ = py.dqn.dqn(0, 2^NumBands,  4 ) ;  
-            % suppose learn to wait
-            % n.feature constant 4, map size of States
-            observation = State ;  % full obeservation here
-            CurrentActionNumber = dqn_.choose_action(observation);   %
-            % map [s, a, r, s_]
-            % s, s_ = States
-            % a     = ActionNumber
-            % r     = Reward
-            
-        end
+        CurrentActionNumber    = policy(StateNumber);
         % ################## Get action by policy ###################################
         % J - getAction by policy
         % J track CurrentActionNumber
         % ############# policy -> CurrentActionNumber -> CurrentAction ->
         % "CurrentReward " -> UpdateInterference() -> NewInt -> CurrentInt -> MapState() ->
-        
-        
-        
-        
-        
-        
-        
-        
-        
         CurrentAction          = Actions(CurrentActionNumber,:);
         Bandwidth_eval(i+1)    = BandSize*sum(CurrentAction);
         % J - Bandwidth_eval for plot
@@ -661,7 +626,6 @@ for evalIndx = 1:NumEvaluations
 
         ActionHist(CurrentActionNumber) = ActionHist(CurrentActionNumber) + 1;
         action_history_eval(i+1)        = bin2dec(num2str(Actions(CurrentActionNumber, :)));
-       
 
         CurrentReward                   = CalculateReward(SINRdB, CurrentAction, NumBands);
         % ################## Get reward by action ###################################
@@ -682,21 +646,6 @@ for evalIndx = 1:NumEvaluations
         %    position_eval = position_eval(1:(i+1),:);
         %    break;
         %end
-        
-        
-        
-        % ############# update DQN solver #################
-        % .storeTransition(observation, actionScalar, reward, observation_)
-        if solver == "dqn"
-            dqn_.storeTransition(observation, CurrentActionNumber,...
-                                                CurrentReward, State)
-            if mod(i,5) == 0    % update rate set as 5
-                dqn_.learn()
-            end
-        end
-                
-        
-        
     end
 
     

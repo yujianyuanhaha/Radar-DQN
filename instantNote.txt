@@ -1,2 +1,8 @@
 1. the logic of offline trainning ?
 2. isolate mdp solver, block all related?
+
+
+
+
+#Todo
+1. numAction not equal 2^numBand, see SelectOnlyConti...m

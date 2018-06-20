@@ -37,7 +37,8 @@ tmp         = (abs(SINRs - repmat(sinr, numsinr,1)));
 [a,b]       = min(tmp);
 sinr_number = b;
 
-State = [position_number, velocity_number, interference_number, sinr_number];
+State = [position_number, velocity_number, interference_number, sinr_number]; 
+% #################### wider def than channel state(interference_number)
 StateNumber = (position_number-1)*(numvel*numint*numsinr) + ...
               (velocity_number-1)*numint*numsinr + ...
               (interference_number-1)*numsinr + sinr_number;
