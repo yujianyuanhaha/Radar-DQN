@@ -579,7 +579,26 @@ for evalIndx = 1:NumEvaluations
 %                 % pop(P,int32(0))
 %             end
             
-            dqn_ = py.dqn.dqn(0, 2^NumBands,  4 ) ;  
+            dqn_ = py.dqn.dqn(0, NumBands,  NumBands ) ;  
+            
+            
+%                 def __init__(
+%             self,
+%             dqnNode,
+%             n_actions,
+%             n_features,
+%             learning_rate=0.001,    # for neural network
+%             reward_decay=0.9,
+%             exploreDecayType = 'expo',   
+%             replace_target_iter=300,
+%             memory_size=200,
+%             batch_size=32,
+%             e_greedy_increment=None,
+%             output_graph= True      # enable tensorboard                  
+%     ):    # allow dqnNode to call in its attribute
+%     
+    
+    
             % suppose learn to wait
             % n.feature constant 4, map size of States
             observation = State ;  % full obeservation here

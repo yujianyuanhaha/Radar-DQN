@@ -143,9 +143,10 @@ for kk = 1:(NumTrainingRuns+1)
         Bandwidth(i+1) = 1e8*sum(CurrentAction);
         
         % update Interference
-        CurrentInt = UpdateInterference(CurrentInt, ...
-            InterferenceBehavior, CurrentAction, ...
+        CurrentInt = UpdateInterference(...
+            InterferenceBehavior,CurrentInt, CurrentAction, ...
             InterferenceState, 0.25);
+        % J - update to match newest  UpdateInterference()
         
         
         % update SINR
@@ -183,6 +184,7 @@ for kk = 1:(NumTrainingRuns+1)
         %end
         
         CurrentReward = CalculateReward(State, CurrentAction );
+        % Reward = CalculateReward(SINR, CurrentAction, NumBands)
         
         
         RewardCount(StateNumber, CurrentActionNumber) = RewardCount(StateNumber, CurrentActionNumber) + 1;

@@ -10,7 +10,9 @@ Tensorflow: r1.2
 """
 
 import numpy as np
+#import tensorboard as tb
 import tensorflow as tf
+
 import os
 import random
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'   
@@ -68,7 +70,10 @@ class dqn:
         self.learn_step_counter  = 0
 
         # initialize zero memory [s, a, r, s_]
-        self.memory = np.zeros((self.memory_size, n_features * 2 + 2))  # tiny
+
+        print(self.memory_size)
+        print(n_features)
+        self.memory = np.zeros( ( int(self.memory_size), int(n_features * 2 + 2)) )  # tiny
 
         # consist of [target_net, evaluate_net]
         self._build_net()
