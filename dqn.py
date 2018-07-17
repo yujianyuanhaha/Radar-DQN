@@ -44,14 +44,14 @@ class dqn:
             dqnNode,
             n_actions,
             n_features,
-            learning_rate=0.001,    # for neural network
-            reward_decay=0.9,
-            exploreDecayType = 'expo',   
-            replace_target_iter=300,
-            memory_size=200,
-            batch_size=32,
-            e_greedy_increment=None,
-            output_graph= True      # enable tensorboard                  
+            learning_rate       = 0.001,    # for neural network
+            reward_decay        = 0.9,
+            exploreDecayType    = 'expo',   
+            replace_target_iter = 300,
+            memory_size         = 200,
+            batch_size          = 32,
+            e_greedy_increment  = None,
+            output_graph        = True      # enable tensorboard                  
     ):    # allow dqnNode to call in its attribute
                 
         self.n_actions           = n_actions
@@ -71,9 +71,7 @@ class dqn:
 
         # initialize zero memory [s, a, r, s_]
 
-        print(self.memory_size)
-        print(n_features)
-        self.memory = np.zeros( ( int(self.memory_size), int(n_features * 2 + 2)) )  # tiny
+        self.memory = np.zeros((self.memory_size, n_features * 2 + 2))
 
         # consist of [target_net, evaluate_net]
         self._build_net()
@@ -117,6 +115,8 @@ class dqn:
         w_initializer, b_initializer = tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)
 
         # ------------------ build evaluate_net ------------------
+
+
         with tf.variable_scope('eval_net', reuse=tf.AUTO_REUSE):
             e1 = tf.layers.dense(self.s, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e1')
@@ -155,6 +155,10 @@ class dqn:
             self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
     def store_transition(self, s, a, r, s_):
+
+        s = np.array( s)
+        s_ = np.array( s_)
+
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
         transition = np.hstack((s, [a, r], s_))
@@ -165,6 +169,7 @@ class dqn:
 
     def choose_action(self, observation):
         # to have batch dimension when feed into tf placeholder
+        observation = np.array( observation)   # new for add in matlab
         observation = observation[np.newaxis, :]
 
         if np.random.uniform() < 1.0 - self.exploreProb:   #

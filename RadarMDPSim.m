@@ -569,8 +569,8 @@ for evalIndx = 1:NumEvaluations
         else
             % DQN solver construction
             % implement on ONLINE TRAIN only
-            V1 = py.PyClass2.VehicleClass('Red');
-            py.print(V1);
+%             V1 = py.PyClass2.VehicleClass('Red');
+%             py.print(V1);
             
 %             modpath = '/anaconda2/lib/python2.7/site-packages';
 %             P = py.sys.path;
@@ -579,8 +579,15 @@ for evalIndx = 1:NumEvaluations
 %                 % pop(P,int32(0))
 %             end
             
-            dqn_ = py.dqn.dqn(0, NumBands,  NumBands ) ;  
-            
+         %   disp(NumBands)
+            dqn_ = py.dqn.dqn(0, int32(2^NumBands),  int32(NumBands-1) ) ;          
+            % for unkown reason it umatch
+              
+%             try
+%                 dqn_ = py.dqn.dqn(0, 2^NumBands,  NumBands ) ;  
+%             catch e
+%                 disp(e);
+%             end
             
 %                 def __init__(
 %             self,
@@ -602,7 +609,13 @@ for evalIndx = 1:NumEvaluations
             % suppose learn to wait
             % n.feature constant 4, map size of States
             observation = State ;  % full obeservation here
-            CurrentActionNumber = dqn_.choose_action(observation);   %
+            
+            %disp(int32(observation))
+       %     CurrentActionNumber = dqn_.choose_action(int32(observation));   %
+            CurrentActionNumber = dqn_.choose_action(int32(observation));
+            CurrentActionNumber = mod(CurrentActionNumber,15)+1;  % cannot figure why 
+         %   disp(CurrentActionNumber)
+            
             % map [s, a, r, s_]
             % s, s_ = States
             % a     = ActionNumber
@@ -706,9 +719,19 @@ for evalIndx = 1:NumEvaluations
         
         % ############# update DQN solver #################
         % .storeTransition(observation, actionScalar, reward, observation_)
+        
+        
+      %  disp(observation);
+       % disp(CurrentActionNumber);
+       % disp(CurrentReward);
+      %  disp(State);
+        
+        
+        
+        
         if solver == "dqn"
-            dqn_.storeTransition(observation, CurrentActionNumber,...
-                                                CurrentReward, State)
+            dqn_.store_transition(int32(observation), int32(CurrentActionNumber),...
+                                                int32(CurrentReward), int32(State))
             if mod(i,5) == 0    % update rate set as 5
                 dqn_.learn()
             end
