@@ -36,14 +36,42 @@ it will work if no error pop up.
 
 
 # How to run
+For Mac OS  
 refer to setup step 1-2
 1. start matlab from terminal(by the [guide](https://stackoverflow.com/questions/45733111/importing-tensorflow-in-matlab-via-python-interface)) from the PATH where /bin of Matlab is, in my Mac OS, it is like change to path ```/Application/MATLAB_R2018a.app/bin```
 2. after Matlab launch, change path to where ```dqn.py``` file is locate, type in 
-```
-py.importlib.import_module('dqn')
-``` 
+    ```
+    py.importlib.import_module('dqn')
+    ``` 
 to load the python module.  
 3. execute ```RunSimulations.m``` file
+
+---
+For Ubuntu (Matlab version 2018a) User
+refer to setup step 1-2 as well, and then follow below  
+1. downgrade tensorflow to version 1.5.0 to avoid kernel dead error in ubuntu, in terminal  
+    ```
+    conda install -c conda-forge tensorflow=1.5.0
+    ```
+2. replace(actually work as update) the ```libstdc++.so.6```,```libstdc++.so.6.0.22``` of matlab as the those ```libstdc++.so.6```,```libstdc++.so.6.0.22``` of anaconda.  
+in terminal, type in command as below. The second command just archived the old lib, and third copy the new one from anaconda, similiar to the other lib.   
+    ```
+    cd /usr/local/MATLAB/R2018a/sys/os/glnxa64/
+    sudo mv libstdc++.so.6 libstdc++.so.6.old
+    sudo cp ~/anaconda2/lib/libstdc++.so.6 .
+    sudo mv libstdc++.so.6.0.22 libstdc++.so.6.0.22.old
+    sudo cp ~/anaconda2/lib/libstdc++.so.6.24 .
+    ```
+
+3. start matlab from terminal(same as Mac OS step 1)  
+4. after Matlab launch, change path to where ```dqn.py``` file is locate(same as Mac OS step 2)
+5. in Matlab, type in command
+    ```
+    py.sys.setdlopenflags(int32(10))
+    ```
+6. load the python module (same as Mac OS step 2)
+7. execute ```RunSimulations.m``` file
+
 
 -------------------------------------------------------------------------
 
