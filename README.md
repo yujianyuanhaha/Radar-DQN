@@ -44,7 +44,7 @@ refer to setup step 1-2
     py.importlib.import_module('dqn')
     ``` 
 to load the python module.  
-3. execute ```RunSimulations.m``` file
+3. execute ```RunSimulations.m``` file, notice replace the 'dqn' as 'mdp' solver(last second option) recurrent to Ersin mdp settings.
 
 ---
 For Ubuntu (Matlab version 2018a) User
