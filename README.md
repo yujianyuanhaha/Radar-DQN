@@ -73,6 +73,10 @@ in terminal, type in command as below. The second command just archived the old 
 7. execute ```RunSimulations.m``` file
 
 
+After the first setup pass, next time we start the matlab from terminal, go by  
+1. change directory to where ```dqn.py```  is  
+2. for ubuntu in matlab type in  ```py.sys.setdlopenflags(int32(10))```, for Mac OS skip this step  
+2. then in matlab type in  ``` py.importlib.import_module('dqn')```
 -------------------------------------------------------------------------
 
 # Notice
