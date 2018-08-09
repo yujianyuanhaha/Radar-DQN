@@ -674,8 +674,10 @@ for evalIndx = 1:NumEvaluations
         if solver == "dqn"
             dqn_.store_transition(int32(observation), int32(CurrentActionNumber),...
                                                 int32(CurrentReward), int32(State))
-            if mod(i,5) == 0    % update rate set as 5
-                dqn_.learn()
+            if i > 500
+                if mod(i,5) == 0    % update rate set as 5
+                    dqn_.learn()
+                end
             end
         end
                 

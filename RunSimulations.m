@@ -5,11 +5,13 @@
 
 % 1. reduce NumRuns
 % 2. EvalTraj
+py.sys.setdlopenflags(int32(10))
+py.importlib.import_module('dqn')
 
 RadarMDPSim('Random',   {},           'Cross-Range',                    6, ...
              1,         'EvalOnNew',  {{[-4, 3.8, 0.2],[0.005, 0]}},    'DoNotExport',...
             'Separate',  5,           1,                                'CONST',...
-            'mdp',       [1 0 0 0 0]);
+            'dqn',       [1 0 0 0 0]);
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'INTER', [1 0 0 0 0], 0.9);
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'INTER', [1 0 0 0 0], 0.1);
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'FH-TRIANGLE', [1 0 0 0 0], 'Up');

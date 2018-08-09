@@ -36,7 +36,7 @@ it will work if no error pop up.
 
 
 # How to run
-For Mac OS  
+For Mac OS **first setup**  
 refer to setup step 1-2
 1. start matlab from terminal(by the [guide](https://stackoverflow.com/questions/45733111/importing-tensorflow-in-matlab-via-python-interface)) from the PATH where /bin of Matlab is, in my Mac OS, it is like change to path ```/Application/MATLAB_R2018a.app/bin```
 2. after Matlab launch, change path to where ```dqn.py``` file is locate, type in 
@@ -47,7 +47,7 @@ to load the python module.
 3. execute ```RunSimulations.m``` file, notice replace the 'dqn' as 'mdp' solver(last second option) recurrent to Ersin mdp settings.
 
 ---
-For Ubuntu (Matlab version 2018a) User
+For Ubuntu (Matlab version 2018a) User  **first setup** 
 refer to setup step 1-2 as well, and then follow below  
 1. downgrade tensorflow to version 1.5.0 to avoid kernel dead error in ubuntu, in terminal  
     ```
@@ -72,11 +72,10 @@ in terminal, type in command as below. The second command just archived the old 
 6. load the python module (same as Mac OS step 2)
 7. execute ```RunSimulations.m``` file
 
-
-After the first setup pass, next time we start the matlab from terminal, go by  
-1. change directory to where ```dqn.py```  is  
-2. for ubuntu in matlab type in  ```py.sys.setdlopenflags(int32(10))```, for Mac OS skip this step  
-2. then in matlab type in  ``` py.importlib.import_module('dqn')```
+After the first setup pass, next time we start the matlab from terminal, change path to  where ```dqn.py```  is, and run ```RunSimulations.m```.  
+~~1. change directory to where ```dqn.py```  is~~  
+~~2. for ubuntu in matlab type in  ```py.sys.setdlopenflags(int32(10))```, for Mac OS skip this step~~  
+~~3. then in matlab type in  ``` py.importlib.import_module('dqn')```~~
 -------------------------------------------------------------------------
 
 # Notice
