@@ -4,6 +4,22 @@ Author: Jianyuan (Jet) Yu
 Contact: jianyuan@vt.edu   
 Affiliate: Wireless, ECE, Virginia Tech
 
+
+
+Table of contents
+=================
+
+<!--ts-->
+   * [Overview](#Overview)
+   * [Setup](#Setup)
+   * [How_to_run](#How_to_run)
+   * [Notice](#Notice)
+   * [News](#News)
+   * [Bugs🐞](#Bugs🐞)
+   * [FurtherWorks](#FurtherWorks)
+
+<!--te-->
+
 -------------------------------------------------------------------------
 # Overview
 The work replaces the mdp solver in Ersin work as dqn(deep q network) solver. The codes are mostly written in .m except for the ```dqn.py``` file.  
@@ -35,7 +51,7 @@ it will work if no error pop up.
 
 
 
-# How to run
+# How_to_run
 For Mac OS **first setup**  
 refer to setup step 1-2
 1. start matlab from terminal(by the [guide](https://stackoverflow.com/questions/45733111/importing-tensorflow-in-matlab-via-python-interface)) from the PATH where /bin of Matlab is, in my Mac OS, it is like change to path ```/Application/MATLAB_R2018a.app/bin```
@@ -89,10 +105,10 @@ After the first setup pass, next time we start the matlab from terminal, change 
 1. 7/17 the codes running through.
 
 
-# Bugs 🐞
+# Bugs🐞
 1. unmatch of ```State``` and ```NumBands```, i.e. the NumBands in 5 in the default case, while the State is 1 times 4 vector instead of 1 times 5.
 2. the ```CurrentActionNumber``` outrange, probably comes from the first one, I just did roll over.
 
 
-# Further Work
+# FurtherWorks
 TODO
