@@ -1,24 +1,20 @@
-# Ersin - On the Use of MDPs in Cognitive Radar: An Application to Target Tracking
+Ersin - On the Use of MDPs in Cognitive Radar: An Application to Target Tracking
 Date: 7/27/2018  
 Author: Jianyuan (Jet) Yu  
 Contact: jianyuan@vt.edu   
 Affiliate: Wireless, ECE, Virginia Tech
 
 
-
-Table of contents
+Table of Contents
 =================
 
-<!--ts-->
-   * [Overview](#Overview)
-   * [Setup](#Setup)
-   * [How_to_run](#How_to_run)
-   * [Notice](#Notice)
-   * [News](#News)
-   * [Bugs🐞](#Bugs🐞)
-   * [FurtherWorks](#FurtherWorks)
-
-<!--te-->
+   * [Overview](#overview)
+   * [Setup](#setup)
+   * [How to run](#how-to-run)
+   * [Notice](#notice)
+   * [News](#news)
+   * [Bugs](#bugs)
+   * [Further Works](#further-works)
 
 -------------------------------------------------------------------------
 # Overview
@@ -51,7 +47,7 @@ it will work if no error pop up.
 
 
 
-# How_to_run
+# How to run
 For Mac OS **first setup**  
 refer to setup step 1-2
 1. start matlab from terminal(by the [guide](https://stackoverflow.com/questions/45733111/importing-tensorflow-in-matlab-via-python-interface)) from the PATH where /bin of Matlab is, in my Mac OS, it is like change to path ```/Application/MATLAB_R2018a.app/bin```
@@ -86,8 +82,7 @@ in terminal, type in command as below. The second command just archived the old 
     py.sys.setdlopenflags(int32(10))
     ```
 6. load the python module (same as Mac OS step 2)
-7. execute ```RunSimulations.m``` file
-
+7. execute ```RunSimulations.m``` file.  
 After the first setup pass, next time we start the matlab from terminal, change path to  where ```dqn.py```  is, and run ```RunSimulations.m```.  
 ~~1. change directory to where ```dqn.py```  is~~  
 ~~2. for ubuntu in matlab type in  ```py.sys.setdlopenflags(int32(10))```, for Mac OS skip this step~~  
@@ -105,10 +100,10 @@ After the first setup pass, next time we start the matlab from terminal, change 
 1. 7/17 the codes running through.
 
 
-# Bugs🐞
+# Bugs
 1. unmatch of ```State``` and ```NumBands```, i.e. the NumBands in 5 in the default case, while the State is 1 times 4 vector instead of 1 times 5.
 2. the ```CurrentActionNumber``` outrange, probably comes from the first one, I just did roll over.
 
 
-# FurtherWorks
+# Further Works
 TODO
