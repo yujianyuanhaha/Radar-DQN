@@ -48,7 +48,7 @@ class dqn:
             reward_decay        = 0.9,
             exploreDecayType    = 'expo',   
             replace_target_iter = 300,
-            memory_size         = 200,
+            memory_size         = 1000,
             batch_size          = 32,
             e_greedy_increment  = None,
             output_graph        = True      # enable tensorboard                  

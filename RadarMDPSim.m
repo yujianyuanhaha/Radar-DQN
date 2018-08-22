@@ -2,6 +2,9 @@ function RadarMDPSim(   SimMethod,       TrajFormat, TargetTravelMode,  NumRuns,
                         NumEvaluations,  EvalMethod, EvalTraj,          EnableExport, ...
                         IncludeTrajPlot, NumBands,   NumStatesInMemory, InterferenceBehavior, ...
                         solver, varargin)
+
+
+                    
 % Potentially add number of bands, as a parameter so that is adjustable
 % Potentially add InitialState as a parameter to TRIANGLE, SAWTOOTH, and BURSTY
 % Potentially add NumRepeats as a parameter to PATTERN and PSEUDO
@@ -211,9 +214,10 @@ end
 
 
 
-
-
-
+if solver == "dqn"
+    n_features = 4;   % constant
+    dqn_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
+end
 
 
 
@@ -278,6 +282,7 @@ for kk = 1:(NumTrainingRuns)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OFFLINE TRAIN CONTINUE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Inner loop %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Run through each time step of a single simulation run
+    tic;
     for i = 0: length(t)-1  
         % Determine the current state
         [State, StateNumber] = MapState(position, TargetPositions, velocity, ...
@@ -359,13 +364,38 @@ for kk = 1:(NumTrainingRuns)
         % ####### P_hist_sparse <- StateNumber <- MapState( .. CurrentInt) <- NewInt <- UpdateInterference(.. CurrentInt.. )
 
         CurrentReward = CalculateReward(SINRdB, CurrentAction, NumBands);
-        RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) = ...
-                RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) + 1;
-        % ################ Update R matrix ###############################
-        R_sparse_unnormalized{CurrentActionNumber}(OldStateNumber, StateNumber) = ...
-                R_sparse_unnormalized{CurrentActionNumber}(OldStateNumber, StateNumber) + CurrentReward;
-        CumulativeReward = CumulativeReward + CurrentReward;
-        R_hist(kk,i+1)   = CumulativeReward;                
+        
+        if solver == "mdp"
+             
+            RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) = ...
+                    RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) + 1;
+            % ################ Update R matrix ###############################
+            R_sparse_unnormalized{CurrentActionNumber}(OldStateNumber, StateNumber) = ...
+                    R_sparse_unnormalized{CurrentActionNumber}(OldStateNumber, StateNumber) + CurrentReward;
+            CumulativeReward = CumulativeReward + CurrentReward;
+            R_hist(kk,i+1)   = CumulativeReward; 
+        
+        else
+
+            observation = State ;
+            dqn_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
+                                    int32(CurrentReward), int32(State))
+            if i > ceil(length(t)/4)
+                if mod(i,5) == 0    % update rate set as 5
+%                     disp(i);   %%TODO
+                    dqn_.learn();
+                    
+                    
+                end
+            end
+            
+%             if i == ceil(length(t)/10)
+%                 toc;
+%                 % fprintf('Progress 10%% with time %#.4G%%.\r', (toc-tic)); 
+%                 
+%             end
+        end 
+            
 
         % Store the interference history
         % TrainingData{kk}{4}(i+1) = bi2de(CurrentInt(:,:,1), 'left-msb');
@@ -388,7 +418,7 @@ for kk = 1:(NumTrainingRuns)
     TrainingData{kk}{3} = positionvector;
 
     % Display progress
-    fprintf('Progress %#.4G%%.\r', (kk/(NumTrainingRuns))*100); 
+%     fprintf('Progress %#.4G%%.\r', (kk/(NumTrainingRuns))*100); 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OFFLINE TRAIN ENDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -559,131 +589,142 @@ for evalIndx = 1:NumEvaluations
     
       %%%%%%%%%%%%%%%%%%%%%%%%%%% ONLINE EVAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    for i=0:length(t)-1  
-      % Determine state and state number
-        [State, StateNumber] = MapState(position, TargetPositions, velocity, TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
-
-        % Pick the current action and current action number according to the policy and record the amount of bandwidth
-        if solver == "mdp"
-            CurrentActionNumber    = policy(StateNumber);
-        else
-            % DQN solver construction
-            % implement on ONLINE TRAIN only
-
-            dqn_ = py.dqn.dqn(0, int32(2^NumBands),  int32(NumBands-1) ) ;          
-
-            % suppose learn to wait
-            % n.feature constant 4, map size of States
-            observation = State ;  % full obeservation here
-            CurrentActionNumber = dqn_.choose_action(int32(observation));
-            CurrentActionNumber = mod(CurrentActionNumber,15)+1;  % cannot figure why 
-            
-        end
-        % ################## Get action by policy ###################################
-        % J - getAction by policy
-        % J track CurrentActionNumber
-        % ############# policy -> CurrentActionNumber -> CurrentAction ->
-        % "CurrentReward " -> UpdateInterference() -> NewInt -> CurrentInt -> MapState() ->
-        
-        
-        
-        
-        CurrentAction          = Actions(CurrentActionNumber,:);
-        Bandwidth_eval(i+1)    = BandSize*sum(CurrentAction);
-        % J - Bandwidth_eval for plot
-        
-        intf_history_eval(i+1) = bin2dec(num2str(CurrentInt(:,:,1))); 
-
-        CurrentInt             = circshift(CurrentInt, 1, 3);
-        OldInt                 = CurrentInt(:,:,((NumStatesInMemory >= 2) + 1));
-        switch InterferenceBehavior
-            case 'CONST' % Constant interferer
-                NewInt = UpdateInterference(InterferenceBehavior, OldInt);                    
-            case 'AVOID' % Avoiding/evading interferer
-                NewInt = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), CurrentAction, IntfStatesSingle);
-                % J - UpdateInterference, various input, track 'AVIOD'
-                % J - equal likely new state s_, "s, a, r, s_"
-            case 'INTER' % Intermittent interferer         
-                NewInt = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), IntermProb);
-            case {'FH-TRIANGLE', 'FH-SAWTOOTH'} % Triangle sweep or sawtooth sweep frequency hopper
-                [NewInt, NextSweepState] = UpdateInterference(InterferenceBehavior, OldInt, NextSweepState);
-            case {'FH-PATTERN', 'FH-PSEUDO'} % User-defined or pseudorandom sequence frequency hopper
-                [NewInt, NextPatternIndex] = UpdateInterference(InterferenceBehavior, NextPatternIndex, fhPattern, NumBands);
-            case 'BURSTY' % Bursty interferer
-                [NewInt, bandDuration, elapsedTime] = UpdateInterference(InterferenceBehavior, OldInt, ...
-                                                                        bandDuration, elapsedTime, NumBands);
-            case 'JAMMER' % Jamming interferer
-                [NewInt] = UpdateInterference(InterferenceBehavior, CurrentAction);
-            case 'DIRECTION-DEPENDENT-CONST' % Direction-dependent constant interferer
-                [NewInt] = UpdateInterference(InterferenceBehavior, State(1), states_with_interference, IntfMask);
-            case 'DIRECTION-DEPENDENT-INTER' % Direction-dependent intermittent interferer
-                [NewInt] = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), IntermProb, ...
-                                                                State(1), states_with_interference, IntfMask);
-        end
-        CurrentInt(:,:,1) = NewInt;
-
-        % Update position, store it, and compute target range
-        position              = [position(1)+velocity(1)*TimeInterval, ...
-                                    position(2)+velocity(2)*TimeInterval, position(3)];
-        Range                 = norm(position);
-        position_eval(i+1, :) = position;
-
-        % Update SINR
-        I      = sum(CurrentAction.*CurrentInt(:,:,1))*IntPower;
-        N      = Boltzmann*Ts*NF*sum(CurrentAction)*BandSize;
-        Prnew  = Ptnew*G*G*lambda^2*sigma*TBnew*(sum(CurrentAction)/NumBands)*Np/(4*pi)^3/(Range*1000)^4;
-        SINR   = Prnew/(I+N);
-        SINRdB = 10*log10(SINR);
-
-        SINR_hist_eval(1,i+1)  = SINRdB;
-        Range_hist_eval(1,i+1) = Range;
-
-        [State, StateNumber]            = MapState(position, TargetPositions, velocity, TargetVelocities,...
-                                            SINRdB, SINRs, CurrentInt, IntfStatesMat);
-
-        StateHist(StateNumber)          = StateHist(StateNumber) + 1;
-
-        ActionHist(CurrentActionNumber) = ActionHist(CurrentActionNumber) + 1;
-        action_history_eval(i+1)        = bin2dec(num2str(Actions(CurrentActionNumber, :)));
-       
-
-        CurrentReward                   = CalculateReward(SINRdB, CurrentAction, NumBands);
-        % ################## Get reward by action ###################################
-        % J - get reward
-        CumulativeReward                = CumulativeReward + CurrentReward;
-        R_hist_eval(1,i+1)              = CumulativeReward;
-
-        % If x position or y position is more than 25 units (km) away from
-        % the nearest state, then stoop; otherwise continue
-        %if (abs(TargetPositions(State(1),1) - position(1)) > 3) || (abs(TargetPositions(State(1),2) - position(2)) > 3)
-        %    SINR_hist_eval = SINR_hist_eval(1:(i+1),:);
-        %    Range_hist_eval = Range_hist_eval(1:(i+1),:);
-        %    R_hist_eval = R_hist_eval(1:(i+1),:);
-        %    Bandwidth_eval = Bandwidth_eval(1:(i+1),:);
-        %    action_history_eval = action_history_eval(1:(i+1),:);
-        %    intf_history_eval = intf_history_eval(1:(i+1),:);
-        %    
-        %    position_eval = position_eval(1:(i+1),:);
-        %    break;
-        %end
-        
-        
-        
-        % ############# update DQN solver #################
-        
-        if solver == "dqn"
-            dqn_.store_transition(int32(observation), int32(CurrentActionNumber),...
-                                                int32(CurrentReward), int32(State))
-            if i > 500
-                if mod(i,5) == 0    % update rate set as 5
-                    dqn_.learn()
-                end
-            end
-        end
-                
-        
-        
-    end
+      tic;
+      for i=0:length(t)-1
+          
+          % Determine state and state number
+          [State, StateNumber] = MapState(position, TargetPositions, velocity, TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
+          
+          % Pick the current action and current action number according to the policy and record the amount of bandwidth
+          if solver == "mdp"
+              CurrentActionNumber    = policy(StateNumber);
+          else
+              % DQN solver construction
+              % implement on ONLINE TRAIN only
+              
+              
+              % suppose learn to wait
+              % n.feature constant 4, map size of States
+              observation = State ;  % full obeservation here
+              dqn_CurrentActionNumber = dqn_.choose_action(int32(observation));
+              CurrentActionNumber = dqn_CurrentActionNumber + 1;
+              %             disp(CurrentActionNumber);
+              %             CurrentActionNumber = mod(CurrentActionNumber,15)+1;  % cannot figure why
+              
+          end
+          % ################## Get action by policy ###################################
+          % J - getAction by policy
+          % J track CurrentActionNumber
+          % ############# policy -> CurrentActionNumber -> CurrentAction ->
+          % "CurrentReward " -> UpdateInterference() -> NewInt -> CurrentInt -> MapState() ->
+          
+          
+          
+          
+          CurrentAction          = Actions(CurrentActionNumber,:);
+          Bandwidth_eval(i+1)    = BandSize*sum(CurrentAction);
+          % J - Bandwidth_eval for plot
+          
+          intf_history_eval(i+1) = bin2dec(num2str(CurrentInt(:,:,1)));
+          
+          CurrentInt             = circshift(CurrentInt, 1, 3);
+          OldInt                 = CurrentInt(:,:,((NumStatesInMemory >= 2) + 1));
+          switch InterferenceBehavior
+              case 'CONST' % Constant interferer
+                  NewInt = UpdateInterference(InterferenceBehavior, OldInt);
+              case 'AVOID' % Avoiding/evading interferer
+                  NewInt = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), CurrentAction, IntfStatesSingle);
+                  % J - UpdateInterference, various input, track 'AVIOD'
+                  % J - equal likely new state s_, "s, a, r, s_"
+              case 'INTER' % Intermittent interferer
+                  NewInt = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), IntermProb);
+              case {'FH-TRIANGLE', 'FH-SAWTOOTH'} % Triangle sweep or sawtooth sweep frequency hopper
+                  [NewInt, NextSweepState] = UpdateInterference(InterferenceBehavior, OldInt, NextSweepState);
+              case {'FH-PATTERN', 'FH-PSEUDO'} % User-defined or pseudorandom sequence frequency hopper
+                  [NewInt, NextPatternIndex] = UpdateInterference(InterferenceBehavior, NextPatternIndex, fhPattern, NumBands);
+              case 'BURSTY' % Bursty interferer
+                  [NewInt, bandDuration, elapsedTime] = UpdateInterference(InterferenceBehavior, OldInt, ...
+                      bandDuration, elapsedTime, NumBands);
+              case 'JAMMER' % Jamming interferer
+                  [NewInt] = UpdateInterference(InterferenceBehavior, CurrentAction);
+              case 'DIRECTION-DEPENDENT-CONST' % Direction-dependent constant interferer
+                  [NewInt] = UpdateInterference(InterferenceBehavior, State(1), states_with_interference, IntfMask);
+              case 'DIRECTION-DEPENDENT-INTER' % Direction-dependent intermittent interferer
+                  [NewInt] = UpdateInterference(InterferenceBehavior, OriginalIntf(:,:,1), IntermProb, ...
+                      State(1), states_with_interference, IntfMask);
+          end
+          CurrentInt(:,:,1) = NewInt;
+          
+          % Update position, store it, and compute target range
+          position              = [position(1)+velocity(1)*TimeInterval, ...
+              position(2)+velocity(2)*TimeInterval, position(3)];
+          Range                 = norm(position);
+          position_eval(i+1, :) = position;
+          
+          % Update SINR
+          I      = sum(CurrentAction.*CurrentInt(:,:,1))*IntPower;
+          N      = Boltzmann*Ts*NF*sum(CurrentAction)*BandSize;
+          Prnew  = Ptnew*G*G*lambda^2*sigma*TBnew*(sum(CurrentAction)/NumBands)*Np/(4*pi)^3/(Range*1000)^4;
+          SINR   = Prnew/(I+N);
+          SINRdB = 10*log10(SINR);
+          
+          SINR_hist_eval(1,i+1)  = SINRdB;
+          Range_hist_eval(1,i+1) = Range;
+          
+          [State, StateNumber]            = MapState(position, TargetPositions, velocity, TargetVelocities,...
+              SINRdB, SINRs, CurrentInt, IntfStatesMat);
+          
+          StateHist(StateNumber)          = StateHist(StateNumber) + 1;
+          
+          ActionHist(CurrentActionNumber) = ActionHist(CurrentActionNumber) + 1;
+          action_history_eval(i+1)        = bin2dec(num2str(Actions(CurrentActionNumber, :)));
+          
+          
+          CurrentReward                   = CalculateReward(SINRdB, CurrentAction, NumBands);
+          % ################## Get reward by action ###################################
+          % J - get reward
+          CumulativeReward                = CumulativeReward + CurrentReward;
+          R_hist_eval(1,i+1)              = CumulativeReward;
+          
+          % If x position or y position is more than 25 units (km) away from
+          % the nearest state, then stoop; otherwise continue
+          %if (abs(TargetPositions(State(1),1) - position(1)) > 3) || (abs(TargetPositions(State(1),2) - position(2)) > 3)
+          %    SINR_hist_eval = SINR_hist_eval(1:(i+1),:);
+          %    Range_hist_eval = Range_hist_eval(1:(i+1),:);
+          %    R_hist_eval = R_hist_eval(1:(i+1),:);
+          %    Bandwidth_eval = Bandwidth_eval(1:(i+1),:);
+          %    action_history_eval = action_history_eval(1:(i+1),:);
+          %    intf_history_eval = intf_history_eval(1:(i+1),:);
+          %
+          %    position_eval = position_eval(1:(i+1),:);
+          %    break;
+          %end
+          
+          
+          
+          % ############# update DQN solver #################
+          
+          if solver == "dqn"
+              dqn_.store_transition(int32(observation), int32(dqn_CurrentActionNumber),...
+                  int32(CurrentReward), int32(State))
+%               if i > length(t)/4
+%                   if mod(i,5) == 0    % update rate set as 5
+%                       disp(i)
+              dqn_.learn()
+%                   end
+%               end
+          end
+          
+          
+          
+%           if i == ceil( length(t)/10)
+              
+%               disp("10%% pass");
+%               toc;
+%           end
+          
+          
+      end
 
     
     
@@ -903,7 +944,7 @@ for evalIndx = 1:NumEvaluations
     % export_fig figfilename -pdf -transparent
     switch EnableExport 
         case 'Export'
-            % export_fig(figfilename, '-pdf', '-transparent' , '-c 25 25 25 25'); 
+            export_fig(figfilename, '-pdf', '-transparent' , '-c 25 25 25 25'); 
             saveas(f, figfilename, 'svg');
             [cmdstat, cmdres] = system(sprintf('inkscape -f %s.svg -A %s --export-area-drawing', figfilename, pdfname));
             [cmdstat, cmdres] = system(sprintf('pdfcrop %s %s', pdfname, pdfname));

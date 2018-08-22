@@ -1,4 +1,4 @@
-Ersin - On the Use of MDPs in Cognitive Radar: An Application to Target Tracking
+Ersin - On the Use of MDPs in Cognitive Radar: An Application to Target Tracking  
 Date: 7/27/2018  
 Author: Jianyuan (Jet) Yu  
 Contact: jianyuan@vt.edu   
@@ -89,7 +89,33 @@ After the first setup pass, next time we start the matlab from terminal, change 
 ~~3. then in matlab type in  ``` py.importlib.import_module('dqn')```~~
 -------------------------------------------------------------------------
 
+
+
+# Run on ARC
+Recommand to run on ARC when large computation, we can lauch MATLAB in ARC as below. Notice matlab(free with campus license) is installed on ```cascade``` while not on ```huckleberry```, and we running codes on GUI (meaning remote GUI helper app like ```XQuartz``` is needed).
+1. If you are out of campus, login in VT VPN.
+2. login in cascade like ```ssh -Y -C yourname@cascades2.arc.vt.edu```, where ```-Y``` for macOS ```-X```
+for Windows/Linux,  
+3. after login, find where matlab is by ```module spider matlab```,
+4. select right version by ```module load matlab/R2018a```,
+5. then type ```matlab```, after that ```XQuartz``` is launched and then Matlab is launched.
+6. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
+
+TODO, add in non-GUI matlab guides.
+
+# Codes Description
+
+## overview
+mdp process combine of **offline training** and **online evaluation**, while dqn could be directly online training and evaluation.
+
+## parameters
+1. ```t``` or ```TimeSteps``` - time duration, default set as ```150```,
+2. ```NumTrainingRuns``` -  offline training case number, default set as ```6000```.
+
+
+
 # Notice
+0. Ersin code default generate file at local directory, it would result in weired error like "script not found" if these file increase to hunreds. Hence we set the directory somewhere else.
 1. restart Matlab and reload .py file each time when editing the ```dqn.py``` file.
 2. restart Matlab and reload .py file each time when NumBand changes.(the tensorflow REUSE bugs to be solved later)
 3. apply ```int32()``` when pass value from .m to .py
