@@ -1,15 +1,20 @@
-% function RadarMDPSim(SimMethod, TrajFormat, TargetTravelMode, NumRuns, ...
-%                      NumEvaluations, EvalMethod, EvalTraj, EnableExport, ...
-%                      IncludeTrajPlot, NumBands, NumStatesInMemory, InterferenceBehavior, ...
+% function RadarMDPSim(SimMethod,        TrajFormat,   TargetTravelMode,   NumRuns, ...
+%                      NumEvaluations,   EvalMethod,   EvalTraj,          EnableExport, ...
+%                      IncludeTrajPlot,  NumBands,     NumStatesInMemory, InterferenceBehavior, ...
 %                      varargin)
 
 % 1. reduce NumRuns
 % 2. EvalTraj
+
+% setup to blend matlab and tensorflow
 py.sys.setdlopenflags(int32(10))
 py.importlib.import_module('dqn')
 
-tic;
-solver = "dqn";
+% tic;
+
+% CHOOSE mdp or dqn solver
+solver = "dqn";          % <<<<<<<<<<<<<<<<<<<<<<<
+fprintf('solver is %s \n',solver);
 % RadarMDPSim('Random',   {},           'Cross-Range',                    6000, ...
 %              1,         'EvalOnNew',  {{[-4, .8, 0.2],[0.005, 0]}},    'DoNotExport',...
 %             'Separate',  5,           1,                                'CONST',...
@@ -20,9 +25,16 @@ RadarMDPSim('Random',   {},           'Cross-Range',                    1000, ..
             'Separate',  5,           1,                                'CONST',...
             solver,       [1 0 0 0 0]);
 
-disp(solver);
-toc;
-% RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'INTER', [1 0 0 0 0], 0.9);
+
+% toc;
+
+% MANY OTHER CASES
+
+% RadarMDPSim('Random', {}, 'Cross-Range', 60000, 
+% 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport',
+% 'Separate', 5, 1, 'INTER', 
+% [1 0 0 0 0], 0.9);
+
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'INTER', [1 0 0 0 0], 0.1);
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 1, 'FH-TRIANGLE', [1 0 0 0 0], 'Up');
 % RadarMDPSim('Random', {}, 'Cross-Range', 60000, 1, 'EvalOnNew', {{[-4, 3.8, 0.2],[0.005, 0]}}, 'DoNotExport', 'Separate', 5, 2, 'FH-TRIANGLE', [1 0 0 0 0], 'Up');
