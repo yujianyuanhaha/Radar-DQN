@@ -48,8 +48,8 @@ it will work if no error pop up.
 
 
 # How to run
-For Mac OS **first setup**  
-refer to setup step 1-2
+## Mac OS 
+**first setup**  refer to setup step 1-2
 1. start matlab from terminal(by the [guide](https://stackoverflow.com/questions/45733111/importing-tensorflow-in-matlab-via-python-interface)) from the PATH where /bin of Matlab is, in my Mac OS, it is like change to path ```/Application/MATLAB_R2018a.app/bin```
 2. after Matlab launch, change path to where ```dqn.py``` file is locate, type in 
     ```
@@ -59,8 +59,8 @@ to load the python module.
 3. execute ```RunSimulations.m``` file, notice replace the 'dqn' as 'mdp' solver(last second option) recurrent to Ersin mdp settings.
 
 ---
-For Ubuntu (Matlab version 2018a) User  **first setup** 
-refer to setup step 1-2 as well, and then follow below  
+## Ubuntu 
+(Matlab version 2018a) User  **first setup** refer to setup step 1-2 as well, and then follow below  
 1. downgrade tensorflow to version 1.5.0 to avoid kernel dead error in ubuntu, in terminal  
     ```
     conda install -c conda-forge tensorflow=1.5.0
@@ -100,6 +100,10 @@ for Windows/Linux,
 4. select right version by ```module load matlab/R2018a```,
 5. then type ```matlab```, after that ```XQuartz``` is launched and then Matlab is launched.
 6. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
+
+Notice:
+1. Before ```git pull```, make ``` git clone ``` first. An easier way is clone in the **https** way rather than ssh, while for ssh way, please [set up public key](https://help.github.com/articles/error-permission-denied-publickey/#platform-linux) ahead.
+2. For ```scp``` command, double check the PATH of the remote server. e.g. ``` scp note.txt jianyuan@cascades1.arc.vt.edu:/home/jianyuan```.
 
 TODO, add in non-GUI matlab guides.
 

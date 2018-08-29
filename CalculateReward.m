@@ -20,7 +20,7 @@ Reward = 0;
 %     case 8
 %         Reward = Reward + 10;
 % end
-NegSINRPenalty = -10*(NumBands - 1) +5;
+NegSINRPenalty = -10*(NumBands - 1) -5;
 
 if SINR <= 0
     % Reward = Reward - 35; % Delete this line

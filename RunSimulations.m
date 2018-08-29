@@ -13,7 +13,7 @@ py.importlib.import_module('dqn')
 % tic;
 
 % CHOOSE mdp or dqn solver
-solver = "dqn";          % <<<<<<<<<<<<<<<<<<<<<<<
+solver = "mdp";          % <<<<<<<<<<<<<<<<<<<<<<<
 fprintf('solver is %s \n',solver);
 % RadarMDPSim('Random',   {},           'Cross-Range',                    6000, ...
 %              1,         'EvalOnNew',  {{[-4, .8, 0.2],[0.005, 0]}},    'DoNotExport',...

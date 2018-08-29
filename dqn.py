@@ -122,12 +122,12 @@ class dqn:
                                  bias_initializer=b_initializer, name='e1')
             e2 = tf.layers.dense(e1,     50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e2')
-#            e3 = tf.layers.dense(e2,     200, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='e3')
-#            e4 = tf.layers.dense(e3,     20, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='e4')
+            e3 = tf.layers.dense(e2,     200, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e3')
+            e4 = tf.layers.dense(e3,     20, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='e4')
             
-            self.q_eval = tf.layers.dense(e2, self.n_actions, kernel_initializer=w_initializer,
+            self.q_eval = tf.layers.dense(e4, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='q')
 
 
@@ -137,11 +137,11 @@ class dqn:
                                  bias_initializer=b_initializer, name='t1')
             t2 = tf.layers.dense(t1, 50, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='t2')
-#            t3 = tf.layers.dense(t2, 200, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='t3')
-#            t4 = tf.layers.dense(t3, 20, tf.nn.relu, kernel_initializer=w_initializer,
-#                                 bias_initializer=b_initializer, name='t4')
-            self.q_next = tf.layers.dense(t2, self.n_actions, kernel_initializer=w_initializer,
+            t3 = tf.layers.dense(t2, 200, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t3')
+            t4 = tf.layers.dense(t3, 20, tf.nn.relu, kernel_initializer=w_initializer,
+                                 bias_initializer=b_initializer, name='t4')
+            self.q_next = tf.layers.dense(t4, self.n_actions, kernel_initializer=w_initializer,
                                           bias_initializer=b_initializer, name='t5')
         with tf.variable_scope('q_target',reuse=tf.AUTO_REUSE):
             q_target = self.r + self.gamma * tf.reduce_max(self.q_next, axis=1, name='Qmax_s_')    # shape=(None, )
