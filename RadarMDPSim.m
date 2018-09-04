@@ -358,7 +358,7 @@ for kk = 1:(NumTrainingRuns)
         % =================== UPDATE
         [State, StateNumber]   = MapState(position, TargetPositions, velocity, ...
             TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
-%          fprintf('StateNum = %d \n',StateNumber);
+
          
         % State = [position_number, velocity_number, interference_number, sinr_number]
         StateHist(StateNumber) = StateHist(StateNumber) + 1;
@@ -386,35 +386,16 @@ for kk = 1:(NumTrainingRuns)
             R_hist(kk,i+1)   = CumulativeReward;
             
         else
-            
+            % ===============  DQN OFFLINE: 1. store (s, a, r, s_) into
+            % memory  2. learn ========================================
             observation_ = State ;
             dqn_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
-                int32(CurrentReward), int32(observation_));
-%             dqn_.learn();
-%             fprintf('run %d step %d -- observation = %5.0f, CurrentActionNumber-1 =%d CurrentReward = %d, observation_ =%5.0f \n', ... 
-%                 kk, i, observation, CurrentActionNumber-1,CurrentReward,observation_);
-%             fprintf('run %d, step %d \n',kk,i);
-%             fprintf('%d ', observation);
-%             fprintf('\n');
-%             fprintf('%d ', CurrentActionNumber-1);
-%             fprintf('\n');
-%             fprintf('%d ', CurrentReward);
-%             fprintf('\n');
-%             fprintf('%d ', observation_);
-%             fprintf('\n');
-              
-            
+                int32(CurrentReward), int32(observation_));                          
             if i > ceil(length(t)/4)
                 if mod(i,5) == 0
                     dqn_.learn();
                 end
             end
-            
-            %             if i == ceil(length(t)/10)
-            %                 toc;
-            %                 % fprintf('Progress 10%% with time %#.4G%%.\r', (toc-tic));
-            %
-            %             end
         end
         
         
@@ -467,15 +448,9 @@ for kk = 1:(NumTrainingRuns)
         disp('Progress 100% ');
         toc;       
     end
-        
-        
-    
-    
+   
     % Store target position history versus time
     TrainingData{kk}{3} = positionvector;
-    
-    % Display progress
-    %     fprintf('Progress %#.4G%%.\r', (kk/(NumTrainingRuns))*100);
 end
 disp("-------------- OFFLINE ends ------------------");
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -657,28 +632,17 @@ for evalIndx = 1:NumEvaluations
         if solver == "mdp"
             CurrentActionNumber    = policy(StateNumber);
         else
-            % DQN solver construction
-            % implement on ONLINE TRAIN only
-            
-            
-            % suppose learn to wait
-            % n.feature constant 4, map size of States
-            observation = State ;  % full obeservation here
+            % ================ ONE EVAL: DQN make action ======================
+            % NOTICE dqn_.choose_action return vaule start from 0 while
+            % matlab start from I.
             dqn_CurrentActionNumber = dqn_.choose_action(int32(observation));
-            CurrentActionNumber = dqn_CurrentActionNumber + 1;
-            %             disp(CurrentActionNumber);
-            %             CurrentActionNumber = mod(CurrentActionNumber,15)+1;  % cannot figure why
-            
+            CurrentActionNumber = dqn_CurrentActionNumber + 1;            
         end
         % ################## Get action by policy ###################################
         % J - getAction by policy
         % J track CurrentActionNumber
         % ############# policy -> CurrentActionNumber -> CurrentAction ->
         % "CurrentReward " -> UpdateInterference() -> NewInt -> CurrentInt -> MapState() ->
-        
-        
-        
-        
         CurrentAction          = Actions(CurrentActionNumber,:);
         Bandwidth_eval(i+1)    = BandSize*sum(CurrentAction);
         % J - Bandwidth_eval for plot
@@ -760,44 +724,21 @@ for evalIndx = 1:NumEvaluations
         
         
         
-        % ############# update DQN solver #################
-        
+        % ############# update DQN solver #################        
         if solver == "dqn"
             observation_ = State;
             dqn_.store_transition(int32(observation), int32(dqn_CurrentActionNumber),...
-                int32(CurrentReward), int32(observation_))
-            
+                int32(CurrentReward), int32(observation_))            
             dqn_.learn()
-            %               if i > length(t)/4
-            %                   if mod(i,5) == 0    % update rate set as 5
-            %                       disp(i)
-            %                       dqn_.learn()
-            %                   end
-            %               end
-        end
-        
-        
-        
-        %           if i == ceil( length(t)/10)
-        
-        %               disp("10%% pass");
-        %               toc;
-        %           end
-        
-        
+        end        
     end
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     disp("-------------- ONLINE ends ------------------");
     toc;
+    
+    
+    
+    
     
     %%%%%%%%%%%%%%%%%%%%%%%%%  PLOT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

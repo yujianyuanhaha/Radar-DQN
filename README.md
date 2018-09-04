@@ -57,6 +57,7 @@ it will work if no error pop up.
     ``` 
 to load the python module.  
 3. execute ```RunSimulations.m``` file, notice replace the 'dqn' as 'mdp' solver(last second option) recurrent to Ersin mdp settings.
+It seems Matlab2018a easily crash down, thus we save the figure asap. To further save the command windows text(like running time or errors) by command [diary](https://www.mathworks.com/help/matlab/ref/diary.html), by doing so we can look up the logs of terminal by the ```diary``` file.
 
 ---
 ## Ubuntu 
@@ -98,14 +99,18 @@ Recommand to run on ARC when large computation, we can lauch MATLAB in ARC as be
 for Windows/Linux,  
 3. after login, find where matlab is by ```module spider matlab```,
 4. select right version by ```module load matlab/R2018a```,
-5. then type ```matlab```, after that ```XQuartz``` is launched and then Matlab is launched.
-6. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
+5. load exact python version by ``` module load Anaconda/2.3.0```, and tensorflow.
+6. then type ```matlab```, after that ```XQuartz``` is launched and then Matlab is launched.
+7. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
 
 Notice:
-1. Before ```git pull```, make ``` git clone ``` first. An easier way is clone in the **https** way rather than ssh, while for ssh way, please [set up public key](https://help.github.com/articles/error-permission-denied-publickey/#platform-linux) ahead.
+1. Before ```git pull```, make ``` git clone ``` first. An easier way is clone in the **https** way rather than ssh, while for ssh way, please [set up public key](https://help.github.com/articles/error-permission-denied-publickey/#platform-linux) ahead. Moreover, every time you do ```git pull```, you may need to remove all ```.pyc``` fiels generated  late time.
 2. For ```scp``` command, double check the PATH of the remote server. e.g. ``` scp note.txt jianyuan@cascades1.arc.vt.edu:/home/jianyuan```.
 
-TODO, add in non-GUI matlab guides.
+# Run Maltab  in terminal without GUI
+Matlab support running in terminal without GUI both for Mac and Ubuntu.
+For Mac, excute ```/MATLAB_PATH/matlab -nodesktop -nosplash -r "FILE_NAME.m" ``` e.g ```/Applications/MATLAB_R2018a.app/bin/matlab -nodesktop -nosplash -r "RunSimulations.m" ```. After that, go on type in ```FILE_NAME``` after ```>>``` show up.  
+While for Ubuntu, after load matlab by ```module load matlab/R2018a```, excute like ```matlab -nodesktop -nosplash -r "FILE_NAME.m" ```, where only difference is path name is not necessary needed.
 
 # Codes Description
 
@@ -119,20 +124,21 @@ mdp process combine of **offline training** and **online evaluation**, while dqn
 
 
 # Notice
-0. Ersin code default generate file at local directory, it would result in weired error like "script not found" if these file increase to hunreds. Hence we set the directory somewhere else.
-1. restart Matlab and reload .py file each time when editing the ```dqn.py``` file.
-2. restart Matlab and reload .py file each time when NumBand changes.(the tensorflow REUSE bugs to be solved later)
-3. apply ```int32()``` when pass value from .m to .py
-4. apply ```np.array()``` when receive array value from .m to .py
-5. [PyException](https://www.mathworks.com/matlabcentral/answers/170466-python-from-2014b-matlab-debug-challanges-where-is-python-stdout-stderr) with try-catch sentence may provide inner information of bugs during debugging.
+1. Ersin code default generate file at local directory, it would result in weired error like "script not found" if these file increase to hunreds. Hence we prefer to set the directory somewhere else.
+2. restart Matlab and reload .py file each time when editing the ```dqn.py``` file.
+3. restart Matlab and reload .py file each time when NumBand changes.(the tensorflow REUSE bugs to be solved later)
+4. apply ```int32()``` when pass value from .m to .py
+5. apply ```np.array()``` when receive array value from .m to .py
+6. [PyException](https://www.mathworks.com/matlabcentral/answers/170466-python-from-2014b-matlab-debug-challanges-where-is-python-stdout-stderr) with try-catch sentence may provide inner information of bugs during debugging.
 
 # News
-1. 7/17 the codes running through.
+1. 9/1 dqn get same result as mdp,
+2. 7/17 the codes running through.
 
 
 # Bugs
-1. unmatch of ```State``` and ```NumBands```, i.e. the NumBands in 5 in the default case, while the State is 1 times 4 vector instead of 1 times 5.
-2. the ```CurrentActionNumber``` outrange, probably comes from the first one, I just did roll over.
+1. ~~unmatch of ```State``` and ```NumBands```, i.e. the NumBands in 5 in the default case, while the State is 1 times 4 vector instead of 1 times 5.~~
+2. ~~the ```CurrentActionNumber``` outrange, probably comes from the first one, I just did roll over.~~
 
 
 # Further Works
