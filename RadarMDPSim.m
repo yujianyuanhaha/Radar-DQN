@@ -211,10 +211,6 @@ for cellIndex = 1:numel(TrainingData)
     TrainingData{cellIndex} = cell(1, 4);
 end
 
-
-
-
-
 if solver == "dqn"
     n_features = 4;   % constant
     dqn_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
@@ -344,14 +340,7 @@ for kk = 1:(NumTrainingRuns)
         SINR   = Prnew/(I+N);
         SINRdB = 10*log10(SINR);
         
-        % Store SINR and range of target
-        SINR_hist(kk,i+1)  = SINRdB;
-        Range_hist(kk,i+1) = Range;
-        
-        % Store the current state as the old state and determine the new
-        % state and statenumber and increment the state history for the
-        % newly determined state
-        OldStateNumber         = StateNumber;
+
         
         % CurrentActionNumber -> Bandwidth
         % ========================================================================
@@ -359,24 +348,35 @@ for kk = 1:(NumTrainingRuns)
         [State, StateNumber]   = MapState(position, TargetPositions, velocity, ...
             TargetVelocities, SINRdB, SINRs, CurrentInt, IntfStatesMat);
 
-         
-        % State = [position_number, velocity_number, interference_number, sinr_number]
-        StateHist(StateNumber) = StateHist(StateNumber) + 1;
-        
-        % Increment the position and training histogram
-        PositionXYHistogram(State(1), 3)  = PositionXYHistogram(State(1), 3) + 1;
-        TrainingHist(CurrentActionNumber) = TrainingHist(CurrentActionNumber) + 1;
-        
-        % Increment history of state transitions
-        P_hist_sparse{CurrentActionNumber}(OldStateNumber,StateNumber) = ...
-            P_hist_sparse{CurrentActionNumber}(OldStateNumber,StateNumber) + 1;
-        % ################ Update P matrix ###############################
-        % ####### P_hist_sparse <- StateNumber <- MapState( .. CurrentInt) <- NewInt <- UpdateInterference(.. CurrentInt.. )
-        
         CurrentReward = CalculateReward(SINRdB, CurrentAction, NumBands);
+
+        
+        
         
         if solver == "mdp"
             
+            % Store SINR and range of target
+            SINR_hist(kk,i+1)  = SINRdB;
+            Range_hist(kk,i+1) = Range;
+            
+            % Store the current state as the old state and determine the new
+            % state and statenumber and increment the state history for the
+            % newly determined state
+            OldStateNumber         = StateNumber;
+                     
+            % State = [position_number, velocity_number, interference_number, sinr_number]
+            StateHist(StateNumber) = StateHist(StateNumber) + 1;
+
+            % Increment the position and training histogram
+            PositionXYHistogram(State(1), 3)  = PositionXYHistogram(State(1), 3) + 1;
+            TrainingHist(CurrentActionNumber) = TrainingHist(CurrentActionNumber) + 1;
+
+            % Increment history of state transitions
+            P_hist_sparse{CurrentActionNumber}(OldStateNumber,StateNumber) = ...
+                P_hist_sparse{CurrentActionNumber}(OldStateNumber,StateNumber) + 1;
+            % ################ Update P matrix ###############################
+            % ####### P_hist_sparse <- StateNumber <- MapState( .. CurrentInt) <- NewInt <- UpdateInterference(.. CurrentInt.. )
+
             RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) = ...
                 RewardCount_sparse{CurrentActionNumber}(OldStateNumber, StateNumber) + 1;
             % ################ Update R matrix ###############################
@@ -461,28 +461,27 @@ disp("-------------- OFFLINE ends ------------------");
 
 
 
-
-
-
-P_sparse_test = cell(1, NumActions);
-R_sparse_test = cell(1, NumActions);
-for k = 1:NumActions
-    P_sparse_rowsums = sum(P_hist_sparse{k}, 2);
-    P_sparse_test{k} = bsxfun(@times, P_hist_sparse{k}, spfun(@(x) 1./x, P_sparse_rowsums));
-    % ##################### P_sparse_test <- P_hist_sparse
-    R_sparse_test{k} = bsxfun(@times, R_sparse_unnormalized{k}, spfun(@(x) 1./x, RewardCount_sparse{k}));
+if solver == "mdp"        
+    P_sparse_test = cell(1, NumActions);
+    R_sparse_test = cell(1, NumActions);
+    for k = 1:NumActions
+        P_sparse_rowsums = sum(P_hist_sparse{k}, 2);
+        P_sparse_test{k} = bsxfun(@times, P_hist_sparse{k}, spfun(@(x) 1./x, P_sparse_rowsums));
+        % ##################### P_sparse_test <- P_hist_sparse
+        R_sparse_test{k} = bsxfun(@times, R_sparse_unnormalized{k}, spfun(@(x) 1./x, RewardCount_sparse{k}));
+    end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    [~, policy] = mdp_policy_iteration(P_sparse_test, R_sparse_test, DiscountFactor);
+    % ################## Get policy by P, R ###################################
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % J in Chris [~,obj.policy] = mdp_policy_iteration(obj.avgStateTrans,obj.rewardTrans,obj.discountFactor);
+    % 1. policy
+    % 2. P_sparse_test
+    % 3. R_sparse_test
+    % 4. DiscountFactor
+    % NOTICE, offline train
 end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[~, policy] = mdp_policy_iteration(P_sparse_test, R_sparse_test, DiscountFactor);
-% ################## Get policy by P, R ###################################
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% J in Chris [~,obj.policy] = mdp_policy_iteration(obj.avgStateTrans,obj.rewardTrans,obj.discountFactor);
-% 1. policy
-% 2. P_sparse_test
-% 3. R_sparse_test
-% 4. DiscountFactor
-% NOTICE, offline train
 
 % Get a timestamp and create the foldername where results will be stored
 FolderDateTimeStr = datestr(now, 'yyyy-mmm-dd-HHMMSS');
@@ -691,7 +690,7 @@ for evalIndx = 1:NumEvaluations
         SINRdB = 10*log10(SINR);
         
         SINR_hist_eval(1,i+1)  = SINRdB;
-        Range_hist_eval(1,i+1) = Range;
+        Range_hist_eval(1,i+1) = Range;   % all variable ending with _eval is for further plot
         
         [State, StateNumber]            = MapState(position, TargetPositions, velocity, TargetVelocities,...
             SINRdB, SINRs, CurrentInt, IntfStatesMat);
