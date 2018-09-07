@@ -9,13 +9,14 @@
 % ==== setup to blend matlab and tensorflow
 py.sys.setdlopenflags(int32(10))
 py.importlib.import_module('dqn')
+py.importlib.import_module('dpg')
 
 % tic;
 
 % CHOOSE mdp or dqn solver
-solver = "mdp";          % <<<<<<<<<<<<<<<<<<<<<<<
+solver = "dpg";          % <<<<<<<<<<<<<<<<<<<<<<<
 fprintf('solver is %s \n',solver);
-RadarMDPSim('Random',   {},           'Cross-Range',                    100, ...
+RadarMDPSim('Random',   {},           'Cross-Range',                    60000, ...
              1,         'EvalOnNew',  {{[-4, 3.8, 0.2],[0.005, 0]}},    'DoNotExport',...
             'Separate',  5,           1,                                'CONST',...
             solver,       [1 0 0 0 0]);

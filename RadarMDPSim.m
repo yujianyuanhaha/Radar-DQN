@@ -211,9 +211,11 @@ for cellIndex = 1:numel(TrainingData)
     TrainingData{cellIndex} = cell(1, 4);
 end
 
+n_features = 4;   % constant
 if solver == "dqn"
-    n_features = 4;   % constant
-    dqn_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
+    drl_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
+elseif solver == "dpg"
+    drl_ = py.dpg.dpg(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
 end
 
 
@@ -389,11 +391,11 @@ for kk = 1:(NumTrainingRuns)
             % ===============  DQN OFFLINE: 1. store (s, a, r, s_) into
             % memory  2. learn ========================================
             observation_ = State ;
-            dqn_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
+            drl_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
                 int32(CurrentReward), int32(observation_));                          
             if i > ceil(length(t)/4)
                 if mod(i,5) == 0
-                    dqn_.learn();
+                    drl_.learn();
                 end
             end
         end
@@ -417,7 +419,13 @@ for kk = 1:(NumTrainingRuns)
     end
     
     % show process bar
-    if kk == floor(NumTrainingRuns/10)
+    if kk == floor(NumTrainingRuns/1000)
+        disp('Progress 0.1% ');
+        toc;
+    elseif kk == floor(NumTrainingRuns/100)
+        disp('Progress 1% ');
+        toc;
+    elseif kk == floor(NumTrainingRuns*1/10)
         disp('Progress 10% ');
         toc;
     elseif kk == floor(NumTrainingRuns*2/10)
@@ -632,9 +640,12 @@ for evalIndx = 1:NumEvaluations
             CurrentActionNumber    = policy(StateNumber);
         else
             % ================ ONE EVAL: DQN make action ======================
-            % NOTICE dqn_.choose_action return vaule start from 0 while
+            % NOTICE drl_.choose_action return vaule start from 0 while
             % matlab start from I.
-            dqn_CurrentActionNumber = dqn_.choose_action(int32(observation));
+            
+           % fprintf("explore prob %d \n",drl_.exploreProb);
+            
+            dqn_CurrentActionNumber = drl_.choose_action(int32(observation));
             CurrentActionNumber = dqn_CurrentActionNumber + 1;            
         end
         % ################## Get action by policy ###################################
@@ -724,11 +735,11 @@ for evalIndx = 1:NumEvaluations
         
         
         % ############# update DQN solver #################        
-        if solver == "dqn"
+        if solver == "dqn" || solver == "dpg"
             observation_ = State;
-            dqn_.store_transition(int32(observation), int32(dqn_CurrentActionNumber),...
-                int32(CurrentReward), int32(observation_))            
-            dqn_.learn()
+            drl_.store_transition(int32(observation), int32(dqn_CurrentActionNumber),...
+                int32(CurrentReward), int32(observation_));            
+            drl_.learn();
         end        
     end
 
