@@ -18,7 +18,7 @@ Table of Contents
 
 -------------------------------------------------------------------------
 # Overview
-The work replaces the mdp solver in Ersin work [git link](git@git.ece.vt.edu:cognitive-radar/code.git) as dqn(deep q network) solver. The codes are mostly written in .m except for the ```dqn.py``` file.  
+The work replaces the mdp solver in Ersin work [git link](git@git.ece.vt.edu:cognitive-radar/code.git) as dqn(deep q network) solver. The codes are mostly written in .m except for the ```dqn.py``` file, and python files are mostly based on open source [RL with Tensorflow by Morvan Zhou](https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow).   
 It is NOT preferable to run codes in this blended way due to the low efficient computation and difficult to adjust the parameters within the dqn solver. Moreover, these codes may bring the new compatible problem when moving to ARC platform.
 
 

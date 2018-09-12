@@ -13,7 +13,7 @@ class Critic(object):
     
     GAMMA = 0.9 
     
-    def __init__(self, acNode, sess, n_features, lr=0.01):
+    def __init__(self, ac, sess, n_features, lr=0.01):
         self.sess = sess
 
         self.s = tf.placeholder(tf.float32, [1, n_features], "state")

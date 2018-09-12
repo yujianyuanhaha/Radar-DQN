@@ -212,10 +212,17 @@ for cellIndex = 1:numel(TrainingData)
 end
 
 n_features = 4;   % constant
+states = stateSpaceCreate(n_features);
 if solver == "dqn"
-    drl_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
+    drl_ = py.dqn.dqn(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) );
 elseif solver == "dpg"
-    drl_ = py.dpg.dpg(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) ) ;
+    drl_ = py.dpg.dpg(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) );
+elseif solver == "ac"
+    drl_ = py.ac.ac(      int32( NumBands*(NumBands+1)/2 ) );
+elseif solver == "dqnDouble"
+    drl_ = py.dqnDouble.DoubleDQN(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) );
+elseif solver == "dqnDuel"
+    drl_ = py.dqnDuel.DuelingDQN(0, int32( NumBands*(NumBands+1)/2 ),  int32(n_features) );
 end
 
 
@@ -391,12 +398,22 @@ for kk = 1:(NumTrainingRuns)
             % ===============  DQN OFFLINE: 1. store (s, a, r, s_) into
             % memory  2. learn ========================================
             observation_ = State ;
-            drl_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
-                int32(CurrentReward), int32(observation_));                          
-            if i > ceil(length(t)/4)
-                if mod(i,5) == 0
-                    drl_.learn();
+            if solver == "dqn" || solver == "dpg" || solver == "dqnDouble" || solver == "dqnDuel"
+                drl_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
+                    int32(CurrentReward), int32(observation_));                          
+                if i > ceil(length(t)/4)
+                    if mod(i,5) == 0
+                        drl_.learn();
+                    end
                 end
+            elseif solver == "ac"
+%                 if i > ceil(length(t)/4)
+%                 if mod(i,5) == 0
+                    drl_.learn(int32(observation), int32(CurrentActionNumber-1),...
+                    int32(CurrentReward), int32(observation_));
+%                 end
+%                 end
+                
             end
         end
         
@@ -735,11 +752,15 @@ for evalIndx = 1:NumEvaluations
         
         
         % ############# update DQN solver #################        
-        if solver == "dqn" || solver == "dpg"
+        if solver == "dqn" || solver == "dpg" || solver == "dqnDouble" || solver == "dqnDuel"
             observation_ = State;
             drl_.store_transition(int32(observation), int32(dqn_CurrentActionNumber),...
                 int32(CurrentReward), int32(observation_));            
             drl_.learn();
+        elseif solver == "ac"
+            observation_ = State;
+            drl_.learn(int32(observation), int32(dqn_CurrentActionNumber),...
+                int32(CurrentReward), int32(observation_)); 
         end        
     end
 

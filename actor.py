@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 class Actor(object):
-    def __init__(self, acNode, sess, n_features, n_actions, lr=0.001):
+    def __init__(self, ac, sess, n_features, n_actions, lr=0.001):
         self.sess = sess
 
         self.s = tf.placeholder(tf.float32, [1, n_features], "state")
