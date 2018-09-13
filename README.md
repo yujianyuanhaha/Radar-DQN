@@ -92,16 +92,30 @@ After the first setup pass, next time we start the matlab from terminal, change 
 
 
 
-# Run on ARC
+# Running on ARC
 Recommand to run on ARC when large computation, we can lauch MATLAB in ARC as below. Notice matlab(free with campus license) is installed on ```cascade``` while not on ```huckleberry```, and we running codes on GUI (meaning remote GUI helper app like ```XQuartz``` is needed).
-1. If you are out of campus, login in VT VPN.
-2. login in cascade like ```ssh -Y -C yourname@cascades2.arc.vt.edu```, where ```-Y``` for macOS ```-X```
+1. If you are out of campus, login in *VT VPN*.
+2. login in cascade like ```ssh -Y -C yourname@cascades2.arc.vt.edu```, where ```-Y``` for macOS and ```-X```
 for Windows/Linux,  
 3. after login, find where matlab is by ```module spider matlab```,
 4. select right version by ```module load matlab/R2018a```,
-5. load exact python version by ``` module load Anaconda/2.3.0```, and tensorflow.
-6. then type ```matlab```, after that ```XQuartz``` is launched and then Matlab is launched.
-7. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
+5. load exact python 2.7 and tensorflow 1.5.0 version by create **conda virtual environment**.    
+    ```
+        module purge
+        module load Anaconda/2.3.0
+        module load gcc
+        conda create --name RadarDQN python=2.7
+        source activate RadarDQN
+        pip install --ignore-installed --upgrade  https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.5.1-cp27-none-linux_x86_64.whl
+
+    ```
+    where *RadarDQN* is self-defined name.  
+
+6. then type ```matlab``` to start, after that ```XQuartz``` is launched and then Matlab is launched.
+7. after that, remember to add in the PATH of tensorflow by
+    ``` insert(py.sys.path,int32(0),'~/.conda/envs/RadarDQN/lib/python2.7/site-packages/') ```, and it would work if no error pop after the test ```py.importlib.import_module('dqn')```.   
+8. excute local codes, or get the updated codes by ```scp``` or ```git pull```.  
+I will update the guidence once *mcc* compiler go through and *pbs* on ARC works.  
 
 Notice:
 1. Before ```git pull```, make ``` git clone ``` first. An easier way is clone in the **https** way rather than ssh, while for ssh way, please [set up public key](https://help.github.com/articles/error-permission-denied-publickey/#platform-linux) ahead. Moreover, every time you do ```git pull```, you may need to remove all ```.pyc``` fiels generated  late time.
@@ -110,7 +124,8 @@ Notice:
 # Run Maltab  in terminal without GUI
 Matlab support running in terminal without GUI both for Mac and Ubuntu.
 For Mac, excute ```/MATLAB_PATH/matlab -nodesktop -nosplash -r "FILE_NAME.m" ``` e.g ```/Applications/MATLAB_R2018a.app/bin/matlab -nodesktop -nosplash -r "RunSimulations.m" ```. After that, go on type in ```FILE_NAME``` after ```>>``` show up.  
-While for Ubuntu, after load matlab by ```module load matlab/R2018a```, excute like ```matlab -nodesktop -nosplash -r "FILE_NAME.m" ```, where only difference is path name is not necessary needed.
+While for Ubuntu, after load matlab by ```module load matlab/R2018a```, excute like ```matlab -nodesktop -nosplash -r "FILE_NAME.m" ```, where only difference is path name is not necessary needed.  
+By default, plots will pop up when codes run to the end, and type ``` edit FILE_NAME.m``` can edit related files.
 
 # Codes Description
 
