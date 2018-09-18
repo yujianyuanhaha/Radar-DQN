@@ -93,6 +93,7 @@ After the first setup pass, next time we start the matlab from terminal, change 
 
 
 # Running on ARC
+## single mode
 Recommand to run on ARC when large computation, we can lauch MATLAB in ARC as below. Notice matlab(free with campus license) is installed on ```cascade``` while not on ```huckleberry```, and we running codes on GUI (meaning remote GUI helper app like ```XQuartz``` is needed).
 1. If you are out of campus, login in *VT VPN*.
 2. login in cascade like ```ssh -Y -C yourname@cascades2.arc.vt.edu```, where ```-Y``` for macOS and ```-X```
@@ -121,10 +122,25 @@ Notice:
 1. Before ```git pull```, make ``` git clone ``` first. An easier way is clone in the **https** way rather than ssh, while for ssh way, please [set up public key](https://help.github.com/articles/error-permission-denied-publickey/#platform-linux) ahead. Moreover, every time you do ```git pull```, you may need to remove all ```.pyc``` fiels generated  late time.
 2. For ```scp``` command, double check the PATH of the remote server. e.g. ``` scp note.txt jianyuan@cascades1.arc.vt.edu:/home/jianyuan```.
 
+## batch mode
+*__Run the single mode with tiny iterations to ensure everything work well.__*  
+Follow step 1-5 as same as the previous single mode, after that, ```qsub pbs.bash```, where the ```pbs.bash``` file is the config file for pbs setup. It is under the folder, you could make some modification on it if necessary ,with guidence 
+Notice:
+1. Our group's identical allocation id is ```RadarDQN```, contact Dr. Buehrer if your account is not on the group list. 
+2. some basic commands to manage jobs status:
+* ```qstat -u username``` check the status of the job, where *Q* for in queue waiting, *R* for running.
+* ```showq -u jianyuan``` for some other info,
+* ```qdel jobID```, delete some stuck job that queue too long, where *jobID* is 6-digit number you can find by qstat,
+* ```checkjob -v jobID``` to check more detailed info about job status, especial for some wrong setting in the *pbs.bash* file.
+3. log files could be read by look into the output file ```pbs.bash.ojobID``` and error file ```pbs.bash.ejobID```, a easier way could be ```cat pbs.bash.ejobID```. By default, there should be a email telling you when the job start off, and another email tell you when the job ends.
+
+
+
 # Run Maltab  in terminal without GUI
 Matlab support running in terminal without GUI both for Mac and Ubuntu.
-For Mac, excute ```/MATLAB_PATH/matlab -nodesktop -nosplash -r "FILE_NAME.m" ``` e.g ```/Applications/MATLAB_R2018a.app/bin/matlab -nodesktop -nosplash -r "RunSimulations.m" ```. After that, go on type in ```FILE_NAME``` after ```>>``` show up.  
-While for Ubuntu, after load matlab by ```module load matlab/R2018a```, excute like ```matlab -nodesktop -nosplash -r "FILE_NAME.m" ```, where only difference is path name is not necessary needed.  
+For Mac, excute ```/MATLAB_PATH/matlab -nodesktop -nosplash -r 'FILE_NAME' ```  
+e.g ```/Applications/MATLAB_R2018a.app/bin/matlab -nodesktop -nosplash -r 'RunSimulations' ```.  
+While for Ubuntu, after load matlab by ```module load matlab/R2018a```, excute like ```matlab -nodesktop -nosplash -r 'FILE_NAME' ```, where only difference is path name is not necessary needed.  
 By default, plots will pop up when codes run to the end, and type ``` edit FILE_NAME.m``` can edit related files.
 
 # Codes Description

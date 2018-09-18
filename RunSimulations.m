@@ -27,7 +27,7 @@ py.importlib.import_module('dqnPriReplay')
 % 6. dqnDuel
 % 7. dqnPriReplay (todo)
 
-solver = "dqnDuel";          % <<<<<<<<<<<<<<<<<<<<<<<
+solver = "dqnDouble";          % <<<<<<<<<<<<<<<<<<<<<<<
 fprintf('solver is %s \n',solver);
 RadarMDPSim('Random',   {},           'Cross-Range',                    60000, ...
              1,         'EvalOnNew',  {{[-4, 3.8, 0.2],[0.005, 0]}},    'DoNotExport',...
