@@ -124,13 +124,13 @@ Notice:
 
 ## batch mode
 *__Run the single mode with tiny iterations to ensure everything work well.__*  
-Follow step 1-5 as same as the previous single mode, after that, ```qsub pbs.bash```, where the ```pbs.bash``` file is the config file for pbs setup. It is under the folder, you could make some modification on it if necessary ,with guidence 
+Follow step 1-5 as same as the previous single mode, after that, ```qsub pbs.bash```, where the ```pbs.bash``` file is the config file for pbs setup. It is under the folder, you could make some modification on it if necessary , and refer to [job script example](https://www.arc.vt.edu/userguide/v100_normal_q/).   
 Notice:
 1. Our group's identical allocation id is ```RadarDQN```, contact Dr. Buehrer if your account is not on the group list. 
 2. some basic commands to manage jobs status:
 * ```qstat -u username``` check the status of the job, where *Q* for in queue waiting, *R* for running.
 * ```showq -u jianyuan``` for some other info,
-* ```qdel jobID```, delete some stuck job that queue too long, where *jobID* is 6-digit number you can find by qstat,
+* ```qdel jobID```, delete some stuck job that queue too long, where *jobID* is *6-digit number* you can find by qstat,
 * ```checkjob -v jobID``` to check more detailed info about job status, especial for some wrong setting in the *pbs.bash* file.
 3. log files could be read by look into the output file ```pbs.bash.ojobID``` and error file ```pbs.bash.ejobID```, a easier way could be ```cat pbs.bash.ejobID```. By default, there should be a email telling you when the job start off, and another email tell you when the job ends.
 
