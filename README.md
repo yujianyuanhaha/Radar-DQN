@@ -98,8 +98,8 @@ Recommand to run on ARC when large computation, we can lauch MATLAB in ARC as be
 1. If you are out of campus, login in *VT VPN*.
 2. login in cascade like ```ssh -Y -C yourname@cascades2.arc.vt.edu```, where ```-Y``` for macOS and ```-X```
 for Windows/Linux,  
-3. after login, find where matlab is by ```module spider matlab```,
-4. select right version by ```module load matlab/R2018a```,
+3. after login, find where matlab is by ```module spider matlab```,  
+4. select right version by ```module load matlab/R2018a```,  
 5. load exact python 2.7 and tensorflow 1.5.0 version by create **conda virtual environment**.    
     ```
         module purge
@@ -110,7 +110,7 @@ for Windows/Linux,
         pip install --ignore-installed --upgrade  https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.5.1-cp27-none-linux_x86_64.whl
 
     ```
-    where *RadarDQN* is self-defined name.  
+    where *RadarDQN* is self-defined name.
 
 6. then type ```matlab``` to start, after that ```XQuartz``` is launched and then Matlab is launched.
 7. after that, remember to add in the PATH of tensorflow by
@@ -124,7 +124,17 @@ Notice:
 
 ## batch mode
 *__Run the single mode with tiny iterations to ensure everything work well.__*  
-Follow step 1-5 as same as the previous single mode, after that, ```qsub pbs.bash```, where the ```pbs.bash``` file is the config file for pbs setup. It is under the folder, you could make some modification on it if necessary , and refer to [job script example](https://www.arc.vt.edu/userguide/v100_normal_q/).   
+As we config virtual env setting in job script file ```pbs.bash``` and config the tensorflow path in ```RunSimulations.m``` already, hence we could *skip step 3-5 and step 6-7*. In terminal type 
+ ```
+    qsub pbs.bash
+```
+It is under the folder, you could make some modification on it if necessary , and refer to [job script example](https://www.arc.vt.edu/userguide/v100_normal_q/).   
+As for the resource line, the recommend setting is  
+``` 
+    #PBS -l nodes=4:ppn=16:gpus=2 
+```
+higher request would result in submit error or too long queueing.  
+
 Notice:
 1. Our group's identical allocation id is ```RadarDQN```, contact Dr. Buehrer if your account is not on the group list. 
 2. some basic commands to manage jobs status:
