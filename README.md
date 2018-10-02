@@ -110,7 +110,7 @@ for Windows/Linux,
         pip install --ignore-installed --upgrade  https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.5.1-cp27-none-linux_x86_64.whl
 
     ```
-    where *RadarDQN* is self-defined name.
+    where *RadarDQN* is self-defined name. For other tensorflow version, refer to [tensorflow build .whl](https://github.com/lakshayg/tensorflow-build).
 
 6. then type ```matlab``` to start, after that ```XQuartz``` is launched and then Matlab is launched.
 7. after that, remember to add in the PATH of tensorflow by
@@ -143,6 +143,8 @@ Notice:
 * ```qdel jobID```, delete some stuck job that queue too long, where *jobID* is *6-digit number* you can find by qstat,
 * ```checkjob -v jobID``` to check more detailed info about job status, especial for some wrong setting in the *pbs.bash* file.
 3. log files could be read by look into the output file ```pbs.bash.ojobID``` and error file ```pbs.bash.ejobID```, a easier way could be ```cat pbs.bash.ejobID```. By default, there should be a email telling you when the job start off, and another email tell you when the job ends.
+4. do remember to increase the *wall time* in ```pbs.bash``` file if you need more computation, while the estimation of wall time come from tiny test.
+5. refer to [vim cheatsheet](https://vim.rtorr.com/) or Jet's [brief note of vim](https://github.com/yujianyuanhaha/blog/blob/master/source/_posts/tutorial/vim.md) to getting used to vim.
 
 
 
@@ -161,7 +163,7 @@ mdp process combine of **offline training** and **online evaluation**, while dqn
 ## parameters
 1. ```t``` or ```TimeSteps``` - time duration, default set as ```150```,
 2. ```NumTrainingRuns``` -  offline training case number, default set as ```6000```.
-
+3. ```NumBands``` - num of bands, notice to **increase the interference pattern as well when you adjust the NumBands**, like NumBands = 5 with   [1 0 0 0 0 0 0 0 0 0], while NumBands = 10 with   [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ].
 
 
 # Notice
