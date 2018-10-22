@@ -16,6 +16,9 @@ py.importlib.import_module('critic')
 py.importlib.import_module('dqnDouble')
 py.importlib.import_module('dqnDuel')
 py.importlib.import_module('dqnPriReplay')
+
+py.importlib.import_module('drqn')
+
 % tic;
 
 % solver option
@@ -27,9 +30,9 @@ py.importlib.import_module('dqnPriReplay')
 % 6. dqnDuel
 % 7. dqnPriReplay (todo)
 
-solver = "dqn";          % <<<<<<<<<<<<<<<<<<<<<<<
+solver = "drqn";          % <<<<<<<<<<<<<<<<<<<<<<<
 fprintf('solver is %s \n',solver);
-RadarMDPSim('Random',   {},           'Cross-Range',                    200000, ...
+RadarMDPSim('Random',   {},           'Cross-Range',                    1000, ...
              1,         'EvalOnNew',  {{[-4, 3.8, 0.2],[0.005, 0]}},    'DoNotExport',...
             'Separate',  10,           1,                                'CONST',...
             solver,       [1 0 0 0 0 0 0 0 0 0]);
