@@ -3,6 +3,8 @@
 Created on Wed Jun 13 09:27:51 2018
 
 @author: Yue Xu
+
+Blending: Jet Oct 24th.
 """
 '''
 Version 1  Thr ~= 0.9 and the optimal Thr should be 0.95
@@ -168,7 +170,10 @@ class drqn:
         if length ==1:
             out.append(In)
             idx = np.argwhere(self.memory[:,self.n_features+2] == t-1)  
-            idx = int(idx[0,0])
+            if len(idx) == 0:    #for matlab
+                return np.repeat(In, self.continue_length)                
+            else:
+                idx = int(idx[0,0])
             for i in range(self.continue_length-1):
                 temp = self.memory[idx - i,:self.n_features].copy()
                 temp = np.reshape(np.array(temp),[1,self.n_features])
@@ -192,7 +197,14 @@ class drqn:
         if length ==1:
             out.append(In)
             idx = np.argwhere(self.memory[:,self.n_features+2] == t-1)
-            idx = int(idx[0,0])
+            if len(idx) == 0:    #for matlab
+                out = np.repeat(In, self.continue_length)
+                out = np.reshape(np.array(out),[length,-1]) 
+#                out = np.matrix(out)
+                return out   # reshape        
+            else:
+                idx = int(idx[0,0])
+                
             for i in range(self.continue_length-1):
                 temp = self.memory[idx - i,-self.n_features:].copy()
                 temp = np.reshape(np.array(temp),[1,self.n_features])
@@ -205,8 +217,11 @@ class drqn:
                     temp = self.memory[idx - i,-self.n_features:].copy()
                     temp = np.reshape(np.array(temp),[1,self.n_features])
                     out.append(temp)       
-        out = np.reshape(np.array(out),[length,-1])    
-            
+        out = np.reshape(np.array(out),[length,-1]) 
+#        out = np.matrix(out) #
+        
+
+        
         return out
 
     def store_transition(self,s, a, r, s_, step):
@@ -217,8 +232,8 @@ class drqn:
         if not hasattr(self, 'memory_counter'): # check whether self has 'memory_counter'
             self.memory_counter = 0            
         transition = np.zeros((1,self.n_features*2 + 3))
-        transition[0,:self.n_features] = s
-        transition[0,self.n_features] = a
+        transition[0,:self.n_features]  = s
+        transition[0,self.n_features]   = a
         transition[0,self.n_features+1] = r
         transition[0,self.n_features+2] = step
         transition[0,-self.n_features:] = s_
@@ -244,24 +259,7 @@ class drqn:
         
         temp_observation = observation[np.newaxis, :]
         
-        
-#        if step <= 500:
-#                action = np.random.randint(0, self.n_actions)         
-#        # obvious logic error, py2 vs py3
-#        elif step>500 and step <= 20000 :
-#            # silly way, 0-500 100%; 500-20000 90%; 20000+ 95%
-#            # what if 90% and 99% 
-#            if np.random.uniform() < 0.9:
-#                actions_value = self.sess.run(self.q_eval0, feed_dict={self.s: self.flatInputS(temp_observation,step), self.temp_batch_size: 1})
-#                action = np.argmax(actions_value)
-#            else:
-#                action = np.random.randint(0, self.n_actions)
-#        else:
-#            if np.random.uniform() < 0.99:
-#                actions_value = self.sess.run(self.q_eval0, feed_dict={self.s: self.flatInputS(temp_observation,step), self.temp_batch_size: 1})
-#                action = np.argmax(actions_value)
-#            else:
-#                action = np.random.randint(0, self.n_actions)   
+
         
         self.exploreHist.append(self.exploreProb)
         if np.random.uniform() < self.exploreProb:   #
@@ -310,11 +308,12 @@ class drqn:
             [self._train_op, self.loss],
             feed_dict={
             ###  recall the structure of memory  [s_n_features,action,reward,trace,s_next_n_feature]
-                self.s: self.flatInputS(batch_memory[:, :self.n_features], t),
-                self.a: batch_memory[:, self.n_features],
-                self.r: batch_memory[:, self.n_features + 1],
-                self.temp_batch_size:self.batch_size,
-                self.s_: self.flatInputSN(batch_memory[:, -self.n_features:], t),
+                #print(batch_memory[:, :self.n_features])
+                self.s:               self.flatInputS(batch_memory[:, :self.n_features], t),
+                self.a:               batch_memory[:, self.n_features],
+                self.r:               batch_memory[:, self.n_features + 1],
+                self.temp_batch_size: self.batch_size,
+                self.s_:              self.flatInputSN(batch_memory[:, -self.n_features:], t),
         })
         self.cost_his.append(cost)
 
@@ -323,4 +322,3 @@ class drqn:
         self.learn_step_counter += 1
         
         return cost
-

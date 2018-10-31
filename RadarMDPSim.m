@@ -405,6 +405,7 @@ for kk = 1:(NumTrainingRuns)
               %      int32(CurrentReward), int32(observation_)); 
               if  solver == "drqn"
                   % save extra time
+                 % disp(i)
                   drl_.store_transition(int32(observation), int32(CurrentActionNumber-1),...
                       int32(CurrentReward), int32(observation_), int32(i)  )
               else
@@ -415,6 +416,7 @@ for kk = 1:(NumTrainingRuns)
                 if i > ceil(length(t)/4)
                     if mod(i,5) == 0
                         drl_.learn();
+                         sprintf("learn at step %d",i);
                     end
                 end
             elseif solver == "ac"
@@ -666,15 +668,18 @@ for evalIndx = 1:NumEvaluations
         % Pick the current action and current action number according to the policy and record the amount of bandwidth
         if solver == "mdp"
             CurrentActionNumber    = policy(StateNumber);
-        else
+        elseif solver == "drqn"
             % ================ ONE EVAL: DQN make action ======================
             % NOTICE drl_.choose_action return vaule start from 0 while
             % matlab start from I.
             
            % fprintf("explore prob %d \n",drl_.exploreProb);
             
+            dqn_CurrentActionNumber = drl_.choose_action(int32(i), int32(observation));
+            CurrentActionNumber = dqn_CurrentActionNumber + 1;
+        else
             dqn_CurrentActionNumber = drl_.choose_action(int32(observation));
-            CurrentActionNumber = dqn_CurrentActionNumber + 1;            
+            CurrentActionNumber = dqn_CurrentActionNumber + 1;
         end
         % ################## Get action by policy ###################################
         % J - getAction by policy

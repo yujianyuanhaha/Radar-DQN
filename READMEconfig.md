@@ -5,6 +5,22 @@ Contact: jianyuan@vt.edu
 Affiliate: Wireless, ECE, Virginia Tech
 
 
+
+Table of Contents
+=================
+
+   * [Setup](#setup)
+   * [How to run](#how-to-run)
+      * [Mac OS](#mac-os)
+      * [Ubuntu](#ubuntu)
+   * [Running on ARC](#running-on-arc)
+      * [single mode](#single-mode)
+      * [batch mode](#batch-mode)
+   * [Run Maltab  in terminal without GUI](#run-maltab--in-terminal-without-gui)
+   * [Tricks to acccelerate the training by running codes at the same time](#tricks-to-acccelerate-the-training-by-running-codes-at-the-same-time)
+
+
+
 # Setup
 1. version: matlab 2018a, python 2.7, tensorflow 1.6.0
 2. add in python & tensorflow into matlab path:  
