@@ -65,7 +65,7 @@ new layer like 50X50X200X20
 Besides, we can also config *target_net* layers.
 
 # Notice
-1. Ersin code default generate file at local directory, it would result in weired error like "script not found" if these file increase to hunreds. Hence we prefer to set the directory somewhere else.
+1. Ersin code default generates file at the local directory, it would result in a weird error like "script not found" if these file increase to hundreds. Hence we prefer to set the directory somewhere else.
 2. restart Matlab and reload .py file each time when editing the ```dqn.py``` file.
 3. restart Matlab and reload .py file each time when NumBand changes.(the tensorflow REUSE bugs to be solved later)
 4. apply ```int32()``` when pass value from .m to .py
