@@ -149,6 +149,17 @@ e.g ```/Applications/MATLAB_R2018a.app/bin/matlab -nodesktop -nosplash -r 'RunSi
 While for Ubuntu, after load matlab by ```module load matlab/R2018a```, execute like ```matlab -nodesktop -nosplash -r 'FILE_NAME' ```, where only difference is path name is not necessary needed.  
 By default, plots will pop up when codes run to the end, and type ``` edit FILE_NAME.m``` can edit related files.
 
+
+
+# Edit .gitignore to ignore non-programming file
+This programmes automatically save down files, thus by default the Github would notice you about these non-programming file changes. Consider we only trace codes, a smart way is edit ```.gitignore``` file to rule out these files. e.g. in this case, edit  the .gitignore file (which is blanket by default) like 
+``` shell
+    **/*-Result
+``` 
+to ignore folders ending with name ```...-Result``` and files in it. In this way, folder naming like ```2018-Sep-02-173544-CONST-10000-1MEMSTATE-Results``` would not be traced.   
+Refer to [bitbucks git ignore tutorial](https://www.atlassian.com/git/tutorials/saving-changes/gitignore) for more tricks.
+
+
 # Tricks to accelerate the training by running codes at the same time  
 1. For GUI matlab, "open another instance" to run another case with diff parameter simultaneously.
 2. For ARC, submit several jobs with different parameter codes.  
