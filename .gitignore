@@ -1,3 +1,5 @@
 *.m~
 *.fig
 *.pdf
+*.pyc
+**/*-Result

@@ -157,7 +157,8 @@ This programmes automatically save down files, thus by default the Github would 
     **/*-Result
 ``` 
 to ignore folders ending with name ```...-Result``` and files in it. In this way, folder naming like ```2018-Sep-02-173544-CONST-10000-1MEMSTATE-Results``` would not be traced.   
-Refer to [bitbucks git ignore tutorial](https://www.atlassian.com/git/tutorials/saving-changes/gitignore) for more tricks.
+Refer to [bitbucks git ignore tutorial](https://www.atlassian.com/git/tutorials/saving-changes/gitignore) for more tricks.  
+Notice if you have not edit `.gitignore` when init the repository, you need to remove all targeted files.
 
 
 # Tricks to accelerate the training by running codes at the same time  
