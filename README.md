@@ -39,5 +39,6 @@ Refer to [READMEcodes.md](md)
 2. ~~the ```CurrentActionNumber``` outrange, probably comes from the first one, I just did roll over.~~
 
 
-# Further Works
-TODO
+# Further Works 🚧
+1. fix DoubleDQN PriDQN DuelDQN
+2. add DRQN

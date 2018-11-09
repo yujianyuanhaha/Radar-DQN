@@ -164,3 +164,7 @@ Notice if you have not edit `.gitignore` when init the repository, you need to r
 # Tricks to accelerate the training by running codes at the same time  
 1. For GUI matlab, "open another instance" to run another case with diff parameter simultaneously.
 2. For ARC, submit several jobs with different parameter codes.  
+
+
+# Notice
+1. ~~__"Undefined function or variable 'RunSimulations'."__, weired bug, just move the `RunSimulations.m` to somewhere else, and move it back. Once this file could be called by `Tab`, it could be run.~~ -> Do enable __Avaiable Offline__ of Google Drive.

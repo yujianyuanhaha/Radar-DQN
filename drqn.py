@@ -96,7 +96,7 @@ class drqn:
               
         w_initializer, b_initializer = tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)
 
-        with tf.variable_scope('eval_net0'):            
+        with tf.variable_scope('eval_net0',reuse=tf.AUTO_REUSE):            
             sIn          = tf.reshape(self.s, [-1, self.n_features])#[None, self.continue_length ,self.n_features]
             e_in         =  tf.layers.dense(sIn, self.n_hidden_units, tf.nn.relu, kernel_initializer=w_initializer,
                                  bias_initializer=b_initializer, name='e00',reuse=tf.AUTO_REUSE)
@@ -120,7 +120,7 @@ class drqn:
     # This Network has same architecture 
     
     #30 50 60 40 - 200 1600
-        with tf.variable_scope('target_net1'):
+        with tf.variable_scope('target_net1',reuse=tf.AUTO_REUSE):
             
             s_In         = tf.reshape(self.s, [-1, self.n_features])#[None, self.continue_length ,self.n_features]
             t_in         =  tf.layers.dense(s_In, self.n_hidden_units, tf.nn.relu, kernel_initializer=w_initializer,
@@ -160,7 +160,7 @@ class drqn:
         #self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval_wrt_a, name='TD_error1'))
         
-        with tf.variable_scope('train0'):
+        with tf.variable_scope('train0',reuse=tf.AUTO_REUSE):
             self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
 
 
@@ -171,7 +171,9 @@ class drqn:
             out.append(In)
             idx = np.argwhere(self.memory[:,self.n_features+2] == t-1)  
             if len(idx) == 0:    #for matlab
-                return np.repeat(In, self.continue_length)                
+                out = np.repeat(In, self.continue_length) 
+                out = np.reshape(np.array(out),[length,-1])   
+                return out
             else:
                 idx = int(idx[0,0])
             for i in range(self.continue_length-1):
@@ -187,7 +189,7 @@ class drqn:
                     temp = np.reshape(np.array(temp),[1,self.n_features])
                     out.append(temp)
         
-        out = np.reshape(np.array(out),[length,-1])    
+        out = np.reshape(out,[length,-1])    
             
         return out
     
@@ -255,7 +257,7 @@ class drqn:
     def choose_action(self,step, observation):
 
         observation = np.array( observation)   # new for add in matlab
-        observation = observation[np.newaxis, :]
+#        observation = observation[np.newaxis, :]
         
         temp_observation = observation[np.newaxis, :]
         
